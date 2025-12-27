@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, ParseIntPipe } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post } from './interface/post.interface';
 
@@ -12,6 +12,10 @@ export class PostsController {
 
   @Get(':id')
   async fetchPost(@Param('id', ParseIntPipe) id: number): Promise<Post> {
-    return this.postsService.find(id);
+    const posts: Post | undefined = this.postsService.find(id);
+    if (!posts) {
+      throw new NotFoundException('Post not found!');
+    }
+    return posts;
   }
 }
