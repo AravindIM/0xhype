@@ -1,14 +1,16 @@
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { PostsService } from './posts.service';
 
 @Controller('posts')
 export class PostsController {
+  constructor(private postsService: PostsService) {}
   @Get()
   fetchPosts(): string {
-    return 'List of posts';
+    return this.postsService.findAll();
   }
 
   @Get(':id')
   fetchPost(@Param('id', ParseIntPipe) id: number): string{
-    return `Viewing post with id ${id}`;
+    return this.postsService.find(id);
   }
 }
