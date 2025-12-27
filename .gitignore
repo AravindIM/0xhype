@@ -3,6 +3,7 @@ sample/**/package-lock.json
 
 # dependencies
 node_modules/
+dist/
 
 # IDE
 .idea
@@ -22,32 +23,31 @@ node_modules/
 [._]sw[a-p]
 
 # bundle
-**/packages/**/*.d.ts
-**/packages/**/*.js
+packages/**/*.d.ts
+packages/**/*.js
 
 # misc
 .DS_Store
 lerna-debug.log
 npm-debug.log
 yarn-error.log
-**/npm-debug.log
-**/packages/**/.npmignore
-**/packages/**/LICENSE
+npm-debug.log
+packages/**/.npmignore
+packages/**/LICENSE
 *.tsbuildinfo
-**/.nx/workspace-data
+.nx/workspace-data
 
 # example
-**/quick-start
-**/example_dist
-**/example
+quick-start
+example_dist
+example
 
 # tests
-**/test
-**/benchmarks/memory
-**/coverage
-**/.nyc_output
-**/packages/graphql
-**/benchmarks/memory
+benchmarks/memory
+coverage
+.nyc_output
+packages/graphql
+benchmarks/memory
 build/config\.gypi
 
 .npmrc
