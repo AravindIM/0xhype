@@ -1,23 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { Post } from './interface/post.interface';
 import { CreatePostDto } from './dto/create-post.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Post } from './post.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PostsService {
-    private readonly posts: Post[] = [];
+  constructor(
+    @InjectRepository(Post)
+    private postRepository: Repository<Post>,
+  ) {}
 
-    find(id: number): Post | undefined {
-        return this.posts.find(post => post.id === id);
-    }
+  async find(id: number): Promise<Post | null> {
+    return this.postRepository.findOneBy({ id });
+  }
 
-    findAll(): Post[] {
-        return this.posts;
-    }
+  async findAll(): Promise<Post[]> {
+    return this.postRepository.find();
+  }
 
-    create(createPostDto: CreatePostDto) {
-        const lastId = this.posts.length;
-        const newPost: Post = {...createPostDto, id: lastId + 1, date: new Date()}
-        this.posts.push(newPost);
-        return true;
-    }
+  async create(createPostDto: CreatePostDto): Promise<Post> {
+    const post = this.postRepository.create(createPostDto);
+    return this.postRepository.save(post);
+  }
 }
