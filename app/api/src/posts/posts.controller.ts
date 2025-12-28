@@ -1,28 +1,39 @@
-import { Controller, Get, Post, InternalServerErrorException, NotFoundException, Param, ParseIntPipe, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  InternalServerErrorException,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+  Body,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { Post as PostInterface } from './interface/post.interface';
+import { Post as PostEntity } from './post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(private postsService: PostsService) {}
   @Get()
-  async fetchPosts(): Promise<PostInterface[]> {
+  async fetchPosts(): Promise<PostEntity[]> {
     return this.postsService.findAll();
   }
 
   @Get(':id')
-  async fetchPost(@Param('id', ParseIntPipe) id: number): Promise<PostInterface> {
-    const posts: PostInterface | undefined = this.postsService.find(id);
-    if (!posts) {
+  async fetchPost(@Param('id', ParseIntPipe) id: number): Promise<PostEntity> {
+    const post: PostEntity | null = await this.postsService.find(id);
+    if (!post) {
       throw new NotFoundException('Post not found!');
     }
-    return posts;
+    return post;
   }
 
   @Post()
   async create(@Body() createPostDto: CreatePostDto): Promise<string> {
-    if (!this.postsService.create(createPostDto)) {
+    const post: PostEntity | null =
+      await this.postsService.create(createPostDto);
+    if (!post) {
       throw new InternalServerErrorException();
     }
     return 'Post Created!';
