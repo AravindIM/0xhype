@@ -1,4 +1,18 @@
 services:
+  db:
+    image: postgres:18.1-alpine3.23
+    container_name: hype0-db
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-hype0}"
+      POSTGRES_USER: "${POSTGRES_USER:-hype0}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - hype0-network
+    restart: always
+
   api-dev:
     build:
       context: ./app/api
@@ -41,6 +55,10 @@ services:
     restart: unless-stopped
     networks:
       - hype0-network
+
+volumes:
+  pgdata:
+
 
 networks:
   hype0-network:
