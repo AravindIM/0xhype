@@ -1,0 +1,46 @@
+services:
+  api-dev:
+    build:
+      context: ./app/api
+      dockerfile: Dockerfile
+      target: development
+    container_name: nestapi-dev
+    ports:
+      - "${APP_PORT:-3000}:3000" # NestJS API server
+      - "${DEBUG_PORT:-9229}:9229" # Node.js debugger
+    volumes:
+      - ./src:/app/src:ro
+      - ./test:/app/test:ro
+      - ./package.json:/app/package.json
+      - ./nest-cli.json:/app/nest-cli.json:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      - ./tsconfig.build.json:/app/tsconfig.build.json:ro
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - "**/*.spec.*"
+            - "**/*.test.*"
+            - "**/__tests__/**"
+        - action: sync
+          path: ./test
+          target: /app/test
+        - action: rebuild
+          path: ./package.json
+        - action: sync
+          path: ./nest-cli.json
+          target: /app/nest-cli.json
+        - action: sync
+          path: ./tsconfig.json
+          target: /app/tsconfig.json
+        - action: sync
+          path: ./tsconfig.build.json
+          target: /app/tsconfig.build.json
+    restart: unless-stopped
+    networks:
+      - hype0-network
+
+networks:
+  hype0-network:
