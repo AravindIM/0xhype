@@ -11,7 +11,7 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - hype0-network
-    restart: always
+    restart: unless-stopped
 
   api-dev:
     build:
@@ -32,7 +32,7 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       ALLOWED_ORIGINS: '${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}'
     volumes:
-      - ./src:/app/src:ro
+      - ./src:/app/src:rw
       - ./test:/app/test:ro
       - ./package.json:/app/package.json
       - ./nest-cli.json:/app/nest-cli.json:ro
@@ -40,13 +40,6 @@ services:
       - ./tsconfig.build.json:/app/tsconfig.build.json:ro
     develop:
       watch:
-        - action: sync
-          path: ./src
-          target: /app/src
-          ignore:
-            - "**/*.spec.*"
-            - "**/*.test.*"
-            - "**/__tests__/**"
         - action: sync
           path: ./test
           target: /app/test
