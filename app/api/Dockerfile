@@ -9,5 +9,5 @@ ENV NODE_ENV=development \
 COPY . .
 
 USER nodejs
-EXPOSE 3000 5173 9229
+EXPOSE 3000 9229
 CMD ["npm","run","dev:docker"]
