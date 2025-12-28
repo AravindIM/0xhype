@@ -8,6 +8,5 @@ ENV NODE_ENV=development \
     NPM_CONFIG_LOGLEVEL=warn
 COPY . .
 
-USER nodejs
 EXPOSE 3000 9229
-CMD ["npm","run","dev:docker"]
+CMD ["npm","run","start:dev"]
