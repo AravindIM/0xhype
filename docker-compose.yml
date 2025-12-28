@@ -18,7 +18,7 @@ services:
       context: ./app/api
       dockerfile: Dockerfile
       target: development
-    container_name: nestapi-dev
+    container_name: hype0-api-dev
     ports:
       - "${APP_PORT:-3000}:3000" # NestJS API server
       - "${DEBUG_PORT:-9229}:9229" # Node.js debugger
