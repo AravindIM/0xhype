@@ -48,7 +48,12 @@ coverage
 .nyc_output
 packages/graphql
 benchmarks/memory
-build/config\.gypi
+build/
+.env
+
+
+# React Router
+.react-router/
 
 .npmrc
 pnpm-lock.yaml
