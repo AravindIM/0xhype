@@ -8,6 +8,7 @@ import {
   SidebarTrigger,
 } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/app-sidebar";
+import { CreatePost } from "~/components/create-post";
 
 interface PostData {
   title: string;
@@ -46,21 +47,22 @@ export default function Home() {
       <SidebarProvider>
         <AppSidebar variant="sidebar" />
         <SidebarInset>
-          <div className="flex justify-center">
+          <div className="flex flex-col justify-center">
+            <CreatePost />
             {isLoading
               ? "Loading"
               : isError
-              ? `An error has occurred ${error?.message ?? ""}`
-              : data && data.length > 0
-              ? data.map((post) => (
-                  <Post
-                    key={post.link}
-                    title={post.title}
-                    link={post.link}
-                    className="w-full"
-                  />
-                ))
-              : "No posts found"}
+                ? `An error has occurred ${error?.message ?? ""}`
+                : data && data.length > 0
+                  ? data.map((post) => (
+                      <Post
+                        key={post.link}
+                        title={post.title}
+                        link={post.link}
+                        className="w-full"
+                      />
+                    ))
+                  : "No posts found"}
           </div>
         </SidebarInset>
       </SidebarProvider>
