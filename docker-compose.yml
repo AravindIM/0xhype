@@ -13,6 +13,46 @@ services:
       - hype0-network
     restart: unless-stopped
 
+  web-dev:
+    build:
+      context: ./app/web
+      dockerfile: Dockerfile
+      target: development
+    container_name: hype0-web-dev
+    ports:
+      - '${VITE_PORT:-5173}:5173'
+    environment:
+      NODE_ENV: development
+      DOCKER_ENV: 'true'
+    volumes:
+      - ./app/web/app:/app/app:ro
+      - ./app/web/package.json:/app/package.json:ro
+      - ./app/web/tsconfig.json:/app/tsconfig.json:ro
+      - ./app/web/components.json:/app/components.json:ro
+      - ./app/web/vite.config.ts:/app/vite.config.ts:ro
+    develop:
+      watch:
+        - action: sync
+          path: ./app/web/app
+          target: /app/app
+          ignore:
+            - '**/*.test.*'
+            - '**/__tests__/**'
+        - action: rebuild
+          path: ./app/web/package.json
+        - action: sync
+          path: ./app/web/components.json
+          target: /app/components.json
+        - action: rebuild
+          path: ./app/web/tsconfig.json
+          target: /app/tsconfig.json
+        - action: rebuild
+          path: ./app/web/vite.config.ts
+          target: /app/vite.config.ts
+    restart: unless-stopped
+    networks:
+      - hype0-network
+
   api-dev:
     build:
       context: ./app/api
