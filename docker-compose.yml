@@ -1,16 +1,16 @@
 services:
   db:
     image: postgres:18.1-alpine3.23
-    container_name: hype0-db
+    container_name: 0xhype-db
     shm_size: 128mb
     environment:
-      POSTGRES_DB: "${POSTGRES_DB:-hype0}"
-      POSTGRES_USER: "${POSTGRES_USER:-hype0}"
+      POSTGRES_DB: "${POSTGRES_DB:-0xhype}"
+      POSTGRES_USER: "${POSTGRES_USER:-0xhype}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - hype0-network
+      - 0xhype-network
     restart: unless-stopped
 
   web-dev:
@@ -18,7 +18,7 @@ services:
       context: ./app/web
       dockerfile: Dockerfile
       target: development
-    container_name: hype0-web-dev
+    container_name: 0xhype-web-dev
     ports:
       - '${VITE_PORT:-5173}:5173'
     environment:
@@ -51,14 +51,14 @@ services:
           target: /app/vite.config.ts
     restart: unless-stopped
     networks:
-      - hype0-network
+      - 0xhype-network
 
   api-dev:
     build:
       context: ./app/api
       dockerfile: Dockerfile
       target: development
-    container_name: hype0-api-dev
+    container_name: 0xhype-api-dev
     ports:
       - "${APP_PORT:-3000}:3000" # NestJS API server
       - "${DEBUG_PORT:-9229}:9229" # Node.js debugger
@@ -67,8 +67,8 @@ services:
       DOCKER_ENV: 'true'
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
-      POSTGRES_DB: "${POSTGRES_DB:-hype0}"
-      POSTGRES_USER: "${POSTGRES_USER:-hype0}"
+      POSTGRES_DB: "${POSTGRES_DB:-0xhype}"
+      POSTGRES_USER: "${POSTGRES_USER:-0xhype}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       ALLOWED_ORIGINS: '${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}'
     volumes:
@@ -97,11 +97,11 @@ services:
           target: /app/tsconfig.build.json
     restart: unless-stopped
     networks:
-      - hype0-network
+      - 0xhype-network
 
 volumes:
   pgdata:
 
 
 networks:
-  hype0-network:
+  0xhype-network:
