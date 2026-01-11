@@ -6,6 +6,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import Logo from "@/assets/logo.svg?react";
 import type React from "react";
 
 interface NavItem {
@@ -23,27 +24,27 @@ const navItems: NavItem[] = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="w-70 ml-auto px-8">
+      <SidebarHeader className="w-75 ml-auto px-8 py-0">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:p-6! rounded-full text-xl text-bold w-fit"
+              className="data-[slot=sidebar-menu-button]:p-3! rounded-full text-xl text-bold w-fit h-fit"
             >
               <a href="#">
-                <span>0xhype</span>
+                <Logo className="size-10! text-primary" />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="w-70 ml-auto px-8">
+      <SidebarContent className="w-75 ml-auto px-7 py-0">
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                className="p-6 rounded-full text-xl font-semi-bold w-fit"
+                className="p-7 rounded-full text-xl font-semi-bold w-fit"
               >
                 <a href={item.url}>
                   <span>{item.title}</span>
@@ -55,7 +56,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground p-6 rounded-full justify-center text-xl font-semi-bold"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground p-7 rounded-full justify-center text-xl font-semi-bold"
             >
               <a href="#">Post</a>
             </SidebarMenuButton>
