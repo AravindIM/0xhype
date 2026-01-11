@@ -30,6 +30,7 @@ services:
       - ./app/web/tsconfig.json:/app/tsconfig.json:ro
       - ./app/web/components.json:/app/components.json:ro
       - ./app/web/vite.config.ts:/app/vite.config.ts:ro
+      - ./app/web/public:/app/public:ro
     develop:
       watch:
         - action: sync
@@ -49,6 +50,9 @@ services:
         - action: rebuild
           path: ./app/web/vite.config.ts
           target: /app/vite.config.ts
+        - action: sync
+          path: /app/public
+          target: ./app/web/public
     restart: unless-stopped
     networks:
       - 0xhype-network
