@@ -1,10 +1,10 @@
 {
-  "name": "hype0",
+  "name": "0xhype-api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
-  "private": true,
-  "license": "UNLICENSED",
+  "description": "API for 0xhype social media",
+  "author": "Aravind I M",
+  "private": false,
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
