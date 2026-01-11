@@ -15,3 +15,11 @@ RUN npm run build
 FROM node:20-alpine AS production
 WORKDIR /app
 CMD ["npm", "run", "start"]
+
+FROM node:20-alpine AS development
+WORKDIR /app
+ENV NODE_ENV=development
+COPY package.json package-lock.json ./
+COPY --from=dev-deps /app/node_modules ./node_modules
+RUN npm ci
+CMD ["npm", "run", "dev"]
