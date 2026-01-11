@@ -1,7 +1,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "./+types/home";
-import { NavBar } from "~/components/navbar";
+import { NavBar } from "@/components/navbar";
 import { Post } from "~/components/post";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "~/components/ui/sidebar";
+import { AppSidebar } from "~/components/app-sidebar";
 
 interface PostData {
   title: string;
@@ -33,10 +39,10 @@ export default function Home() {
   });
   return (
     <>
-      <NavBar />
-      <main className="flex items-center justify-center pt-4 pb-4">
-        <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
-          <div className="w-full space-y-6 px-4">
+      <SidebarProvider>
+        <AppSidebar variant="sidebar" />
+        <SidebarInset>
+          <div className="flex justify-center">
             {isLoading
               ? "Loading"
               : isError
@@ -52,8 +58,8 @@ export default function Home() {
                     ))
                   : "No posts found"}
           </div>
-        </div>
-      </main>
+        </SidebarInset>
+      </SidebarProvider>
     </>
   );
 }
