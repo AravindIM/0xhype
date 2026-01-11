@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type React from "react";
+import { cn } from "~/lib/utils";
 
 interface PostProps extends React.ComponentProps<"div"> {
   title: string;
