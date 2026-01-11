@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", type: "image/x-icon", href: "/favicon.ico?v=2" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
