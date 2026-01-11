@@ -1,6 +1,10 @@
 {
-  "name": "hype0",
-  "private": true,
+  "name": "0xhype-web",
+  "version": "0.0.1",
+  "description": "Frontend for 0xhype social media",
+  "author": "Aravind I M",
+  "private": false,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "build": "react-router build",
