@@ -72,12 +72,13 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       ALLOWED_ORIGINS: '${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}'
     volumes:
-      - ./src:/app/src:rw
-      - ./test:/app/test:ro
-      - ./package.json:/app/package.json
-      - ./nest-cli.json:/app/nest-cli.json:ro
-      - ./tsconfig.json:/app/tsconfig.json:ro
-      - ./tsconfig.build.json:/app/tsconfig.build.json:ro
+      - ./app/api/src:/app/src:ro
+      - ./app/api/test:/app/test:ro
+      - ./app/api/package.json:/app/package.json:ro
+      - ./app/api/package-lock.json:/app/package-lock.json:ro
+      - ./app/api/nest-cli.json:/app/nest-cli.json:ro
+      - ./app/api/tsconfig.json:/app/tsconfig.json:ro
+      - ./app/api/tsconfig.build.json:/app/tsconfig.build.json:ro
     develop:
       watch:
         - action: sync
