@@ -31,7 +31,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-6! rounded-full text-xl text-bold w-fit"
             >
               <a href="#">
-                <span>Hype0</span>
+                <span>0xhype</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

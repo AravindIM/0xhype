@@ -16,8 +16,12 @@ interface PostData {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Hype0" },
-    { name: "description", content: "Welcome to Hype0!" },
+    { title: "0xhype" },
+    {
+      name: "description",
+      content:
+        "News aggregator social media for following the latest tech hypes!!",
+    },
   ];
 }
 
@@ -46,17 +50,17 @@ export default function Home() {
             {isLoading
               ? "Loading"
               : isError
-                ? `An error has occurred ${error?.message ?? ""}`
-                : data && data.length > 0
-                  ? data.map((post) => (
-                      <Post
-                        key={post.link}
-                        title={post.title}
-                        link={post.link}
-                        className="w-full"
-                      />
-                    ))
-                  : "No posts found"}
+              ? `An error has occurred ${error?.message ?? ""}`
+              : data && data.length > 0
+              ? data.map((post) => (
+                  <Post
+                    key={post.link}
+                    title={post.title}
+                    link={post.link}
+                    className="w-full"
+                  />
+                ))
+              : "No posts found"}
           </div>
         </SidebarInset>
       </SidebarProvider>
