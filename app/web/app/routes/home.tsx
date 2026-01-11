@@ -9,8 +9,15 @@ import {
 } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/app-sidebar";
 import { CreatePost } from "~/components/create-post";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import axios from "axios";
 
 interface PostData {
+  title: string;
+  link: string;
+}
+
+interface CreatePostInputs {
   title: string;
   link: string;
 }
@@ -27,10 +34,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  // Keep queryClient if we'll need it for mutations or cache updates later
   const queryClient = useQueryClient();
 
-  // Properly type the query and use the correct status flags from React Query
   const { isLoading, isError, error, data } = useQuery<PostData[], Error>({
     queryKey: ["posts"],
     queryFn: async () => {
@@ -42,13 +47,28 @@ export default function Home() {
       return (await res.json()) as PostData[];
     },
   });
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<CreatePostInputs>();
+
+  const onSubmit: SubmitHandler<CreatePostInputs> = async (data) =>
+    await axios.post("/api/posts", data);
+
   return (
     <>
       <SidebarProvider>
         <AppSidebar variant="sidebar" />
         <SidebarInset>
           <div className="flex flex-col justify-center">
-            <CreatePost />
+            <CreatePost
+              titleInputProps={register("title")}
+              linkInputProps={register("link", { required: true })}
+              onSubmit={handleSubmit(onSubmit)}
+            />
             {isLoading
               ? "Loading"
               : isError
