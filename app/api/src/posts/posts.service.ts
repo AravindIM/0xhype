@@ -3,6 +3,8 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './post.entity';
 import { Repository } from 'typeorm';
+import scrapePreview from 'open-graph-scraper';
+import { LinkPreviewDto } from './dto/link-preview.dto';
 
 @Injectable()
 export class PostsService {
@@ -22,5 +24,20 @@ export class PostsService {
   async create(createPostDto: CreatePostDto): Promise<Post> {
     const post = this.postRepository.create(createPostDto);
     return this.postRepository.save(post);
+  }
+
+  async genLinkPreview(link: string): Promise<LinkPreviewDto | undefined> {
+    const response = await scrapePreview({ url: link, timeout: 5000 });
+    if (!response || response.error || !response.result.success) {
+      return undefined;
+    }
+    const { result } = response;
+    return {
+      title: result.ogTitle,
+      description: result.ogDescription,
+      image: result.ogImage?.[0]?.url,
+      url: result.ogUrl,
+      siteName: result.ogSiteName,
+    };
   }
 }
