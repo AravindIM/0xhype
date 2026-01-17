@@ -15,14 +15,14 @@ export function CreatePost({
   onSubmit,
 }: CreatePostProps) {
   return (
-    <Card className="gap-0!">
+    <Card className="gap-0! pt-2 pb-3">
       <form onSubmit={onSubmit}>
         <CardHeader>
           <CardTitle>
             <Input
               type="text"
-              placeholder="Give the link a title"
-              className="rounded-none! border-0! focus-visible:ring-0! focus-visible:ring-offset-0! shadow-none!"
+              placeholder="Give it a title"
+              className="rounded-none! border-0! focus-visible:ring-0! focus-visible:ring-offset-0! shadow-none! leading-none! p-0 font-semibold"
               {...titleInputProps}
             />
           </CardTitle>
@@ -30,12 +30,12 @@ export function CreatePost({
         <CardContent>
           <Input
             type="text"
-            placeholder="Paste your link here"
-            className="rounded-none! border-0! focus-visible:ring-0! focus-visible:ring-offset-0! shadow-none!"
+            placeholder="Drop your link here to share it with the world..."
+            className="rounded-none! border-0! focus-visible:ring-0! focus-visible:ring-offset-0! shadow-none! leading-none! p-0 font-normal text-sm"
             {...linkInputProps}
           />
-          <div className="flex justify-end pt-6">
-            <Button type="submit" className="rounded-full">
+          <div className="flex justify-end p-0">
+            <Button type="submit" className="rounded-full px-12">
               Post
             </Button>
           </div>
