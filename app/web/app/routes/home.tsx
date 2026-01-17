@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "./+types/home";
 import { NavBar } from "@/components/navbar";
 import { Post } from "~/components/post";
@@ -17,7 +17,7 @@ interface PostData {
   link: string;
 }
 
-interface CreatePostInputs {
+interface CreatePostInput {
   title: string;
   link: string;
 }
@@ -48,15 +48,25 @@ export default function Home() {
     },
   });
 
+  const createPostMutation = useMutation({
+    mutationFn: async (data: CreatePostInput) => {
+      await axios.post("/api/posts", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<CreatePostInputs>();
+  } = useForm<CreatePostInput>();
 
-  const onSubmit: SubmitHandler<CreatePostInputs> = async (data) =>
-    await axios.post("/api/posts", data);
+  const onSubmit: SubmitHandler<CreatePostInput> = (data) => {
+    createPostMutation.mutate(data);
+  };
 
   return (
     <>
