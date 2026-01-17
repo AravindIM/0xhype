@@ -11,22 +11,39 @@ import {
 import { PostsService } from './posts.service';
 import { Post as PostEntity } from './post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
+import { PostDto } from './dto/post.dto';
+import { LinkPreviewDto } from './dto/link-preview.dto';
 
 @Controller('posts')
 export class PostsController {
   constructor(private postsService: PostsService) {}
   @Get()
-  async fetchPosts(): Promise<PostEntity[]> {
-    return this.postsService.findAll();
+  async fetchPosts(): Promise<PostDto[]> {
+    const posts: PostEntity[] = await this.postsService.findAll();
+    return Promise.all(
+      posts.map(async (post) => {
+        const preview: LinkPreviewDto | undefined =
+          await this.postsService.genLinkPreview(post.link);
+        return {
+          ...post,
+          preview,
+        };
+      }),
+    );
   }
 
   @Get(':id')
-  async fetchPost(@Param('id', ParseIntPipe) id: number): Promise<PostEntity> {
+  async fetchPost(@Param('id', ParseIntPipe) id: number): Promise<PostDto> {
     const post: PostEntity | null = await this.postsService.find(id);
     if (!post) {
       throw new NotFoundException('Post not found!');
     }
-    return post;
+    const preview: LinkPreviewDto | undefined =
+      await this.postsService.genLinkPreview(post.link);
+    return {
+      ...post,
+      preview,
+    };
   }
 
   @Post()
