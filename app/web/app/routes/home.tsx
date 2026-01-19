@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "./+types/home";
 import { NavBar } from "@/components/navbar";
-import { Post } from "~/components/post";
+import { Post, type PostProps } from "~/components/post";
 import {
   SidebarInset,
   SidebarProvider,
@@ -11,11 +11,6 @@ import { AppSidebar } from "~/components/app-sidebar";
 import { CreatePost } from "~/components/create-post";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import axios from "axios";
-
-interface PostData {
-  title: string;
-  link: string;
-}
 
 interface CreatePostInput {
   title: string;
@@ -36,7 +31,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const queryClient = useQueryClient();
 
-  const { isLoading, isError, error, data } = useQuery<PostData[], Error>({
+  const { isLoading, isError, error, data } = useQuery<PostProps[], Error>({
     queryKey: ["posts"],
     queryFn: async () => {
       const res = await fetch("/api/posts");
@@ -44,7 +39,7 @@ export default function Home() {
         throw new Error(
           `Failed to load posts: ${res.status} ${res.statusText}`
         );
-      return (await res.json()) as PostData[];
+      return (await res.json()) as PostProps[];
     },
   });
 
@@ -89,6 +84,7 @@ export default function Home() {
                         key={post.link}
                         title={post.title}
                         link={post.link}
+                        preview={post.preview}
                         className="w-full"
                       />
                     ))
