@@ -4,4 +4,6 @@ export class LinkPreviewDto {
   image?: string;
   url?: string;
   siteName?: string;
+  siteUrl?: string;
+  favicon?: string;
 }
