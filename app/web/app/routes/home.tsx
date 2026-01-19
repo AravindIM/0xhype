@@ -11,6 +11,7 @@ import { AppSidebar } from "~/components/app-sidebar";
 import { CreatePost } from "~/components/create-post";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import axios from "axios";
+import { PostList } from "~/components/post-list";
 
 interface CreatePostInput {
   title: string;
@@ -74,21 +75,13 @@ export default function Home() {
               linkInputProps={register("link", { required: true })}
               onSubmit={handleSubmit(onSubmit)}
             />
-            {isLoading
-              ? "Loading"
-              : isError
-                ? `An error has occurred ${error?.message ?? ""}`
-                : data && data.length > 0
-                  ? data.map((post) => (
-                      <Post
-                        key={post.link}
-                        title={post.title}
-                        link={post.link}
-                        preview={post.preview}
-                        className="w-full"
-                      />
-                    ))
-                  : "No posts found"}
+            {isLoading ? (
+              "Loading"
+            ) : isError ? (
+              `An error has occurred ${error?.message ?? ""}`
+            ) : (
+              <PostList posts={data} />
+            )}
           </div>
         </SidebarInset>
       </SidebarProvider>
