@@ -32,12 +32,16 @@ export class PostsService {
       return undefined;
     }
     const { result } = response;
+    const url = new URL(link);
+    const domain = url.host;
     return {
       title: result.ogTitle,
       description: result.ogDescription,
       image: result.ogImage?.[0]?.url,
       url: result.ogUrl,
       siteName: result.ogSiteName,
+      siteUrl: domain,
+      favicon: `https://${domain}${result.favicon}`,
     };
   }
 }
