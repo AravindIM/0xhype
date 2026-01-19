@@ -12,6 +12,7 @@ import { CreatePost } from "~/components/create-post";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import { PostList } from "~/components/post-list";
+import { TrendingPanel } from "~/components/trending-panel";
 
 interface CreatePostInput {
   title: string;
@@ -84,6 +85,7 @@ export default function Home() {
             )}
           </div>
         </SidebarInset>
+        <TrendingPanel variant="sidebar" />
       </SidebarProvider>
     </>
   );
