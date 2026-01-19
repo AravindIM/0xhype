@@ -1,5 +1,5 @@
 FROM node:24.12.0-alpine3.23 AS build-deps
-WORKDIR /usr/src/app
+WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 

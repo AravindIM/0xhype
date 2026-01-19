@@ -86,18 +86,23 @@ services:
     develop:
       watch:
         - action: sync
-          path: ./test
+          path: ./app/api/src
+          target: /app/src 
+        - action: sync
+          path: ./app/api/test
           target: /app/test
         - action: rebuild
-          path: ./package.json
+          path: ./app/api/package.json
+        - action: rebuild
+          path: ./app/api/package-lock.json
         - action: sync
-          path: ./nest-cli.json
+          path: ./app/api/nest-cli.json
           target: /app/nest-cli.json
         - action: sync
-          path: ./tsconfig.json
+          path: ./app/api/tsconfig.json
           target: /app/tsconfig.json
         - action: sync
-          path: ./tsconfig.build.json
+          path: ./app/api/tsconfig.build.json
           target: /app/tsconfig.build.json
     restart: unless-stopped
     networks:
