@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 
 export interface PreviewProps {
   title?: string;
@@ -32,7 +33,11 @@ export function Preview({
 
   return (
     <>
-      {hasPreviewImage && <img src={image} className="w-full" />}
+      {hasPreviewImage && (
+        <AspectRatio ratio={1.91 / 1}>
+          <img src={image} className="h-full w-full object-cover" />
+        </AspectRatio>
+      )}
       <Card className="gap-1 px-3">
         {hasPreviewHeader && (
           <CardHeader className="px-3">
