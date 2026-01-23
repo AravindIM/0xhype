@@ -13,6 +13,9 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import { PostList } from "~/components/post-list";
 import { TrendingPanel } from "~/components/trending-panel";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface CreatePostInput {
   title: string;
@@ -39,7 +42,7 @@ export default function Home() {
       const res = await fetch("/api/posts");
       if (!res.ok)
         throw new Error(
-          `Failed to load posts: ${res.status} ${res.statusText}`
+          `Failed to load posts: ${res.status} ${res.statusText}`,
         );
       return (await res.json()) as PostProps[];
     },
@@ -64,6 +67,11 @@ export default function Home() {
   const onSubmit: SubmitHandler<CreatePostInput> = (data) => {
     createPostMutation.mutate(data);
   };
+  useEffect(() => {
+    if (isError) {
+      toast.error("Error fetching posts!");
+    }
+  }, [isError]);
 
   return (
     <>
@@ -79,7 +87,7 @@ export default function Home() {
             {isLoading ? (
               "Loading"
             ) : isError ? (
-              `An error has occurred ${error?.message ?? ""}`
+              <></>
             ) : (
               <PostList posts={data} />
             )}
@@ -87,6 +95,7 @@ export default function Home() {
         </SidebarInset>
         <TrendingPanel variant="sidebar" />
       </SidebarProvider>
+      <Toaster position="top-center" />
     </>
   );
 }
