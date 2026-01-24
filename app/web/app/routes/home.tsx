@@ -16,6 +16,7 @@ import { TrendingPanel } from "~/components/trending-panel";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { LoadingPosts } from "@/components/loading-posts";
 
 interface CreatePostInput {
   title: string;
@@ -36,7 +37,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const queryClient = useQueryClient();
 
-  const { isLoading, isError, error, data } = useQuery<PostProps[], Error>({
+  const { isFetching, isError, error, data } = useQuery<PostProps[], Error>({
     queryKey: ["posts"],
     queryFn: async () => {
       const res = await fetch("/api/posts");
@@ -84,13 +85,8 @@ export default function Home() {
               linkInputProps={register("link", { required: true })}
               onSubmit={handleSubmit(onSubmit)}
             />
-            {isLoading ? (
-              "Loading"
-            ) : isError ? (
-              <></>
-            ) : (
-              <PostList posts={data} />
-            )}
+            <PostList posts={data} />
+            {isFetching ? <LoadingPosts /> : isError ? "Error" : <></>}
           </div>
         </SidebarInset>
         <TrendingPanel variant="sidebar" />
