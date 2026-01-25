@@ -18,14 +18,16 @@ export function Post({ title, link, preview, ...props }: PostProps) {
       </CardHeader>
       <CardContent className="px-0">
         {preview ? (
-          <Preview
-            title={preview.title}
-            description={preview.description}
-            image={preview.image}
-            siteName={preview.siteName}
-            siteUrl={preview.siteUrl}
-            favicon={preview.favicon}
-          />
+          <Link to={link} target="_blank" rel="noopener noreferrer">
+            <Preview
+              title={preview.title}
+              description={preview.description}
+              image={preview.image}
+              siteName={preview.siteName}
+              siteUrl={preview.siteUrl}
+              favicon={preview.favicon}
+            />
+          </Link>
         ) : (
           <Link to={link} className="text-blue-500 px-6">
             {link}
