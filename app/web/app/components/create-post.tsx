@@ -38,7 +38,11 @@ export function CreatePost({
             onChange={(e) => setHasLink(Boolean(e.target.value.trim()))}
           />
           <div className="flex justify-end p-0">
-            <Button type="submit" className="rounded-full px-12">
+            <Button
+              type="submit"
+              className="rounded-full px-12"
+              disabled={!hasLink}
+            >
               Post
             </Button>
           </div>
