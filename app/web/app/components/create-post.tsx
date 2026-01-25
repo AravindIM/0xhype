@@ -66,7 +66,7 @@ export function CreatePost({
           <div className="flex justify-end p-0">
             <Button
               type="submit"
-              className="rounded-full px-12"
+              className="rounded-full px-12 cursor-pointer"
               disabled={!(hasLink && isTitleRevealed)}
             >
               Post
