@@ -18,7 +18,11 @@ export class PostsService {
   }
 
   async findAll(): Promise<Post[]> {
-    return this.postRepository.find();
+    return this.postRepository.find({
+      order: {
+        date: 'DESC',
+      },
+    });
   }
 
   async create(createPostDto: CreatePostDto): Promise<Post> {
