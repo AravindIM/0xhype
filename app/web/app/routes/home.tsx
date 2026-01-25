@@ -14,9 +14,8 @@ import axios from "axios";
 import { PostList } from "~/components/post-list";
 import { TrendingPanel } from "~/components/trending-panel";
 import { Toaster } from "@/components/ui/sonner";
-import { toast } from "sonner";
-import { useEffect } from "react";
 import { LoadingPosts } from "@/components/loading-posts";
+import { PostFetchError } from "@/components/post-fetch-error";
 
 interface CreatePostInput {
   title: string;
@@ -37,7 +36,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const queryClient = useQueryClient();
 
-  const { isFetching, isError, error, data } = useQuery<PostProps[], Error>({
+  const { isFetching, isError, data } = useQuery<PostProps[], Error>({
     queryKey: ["posts"],
     queryFn: async () => {
       const res = await fetch("/api/posts");
@@ -49,13 +48,15 @@ export default function Home() {
     },
   });
 
+  const refetchPosts = () => {
+    queryClient.invalidateQueries({ queryKey: ["posts"] });
+  };
+
   const createPostMutation = useMutation({
     mutationFn: async (data: CreatePostInput) => {
       await axios.post("/api/posts", data);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-    },
+    onSuccess: refetchPosts,
   });
 
   const {
@@ -68,11 +69,6 @@ export default function Home() {
   const onSubmit: SubmitHandler<CreatePostInput> = (data) => {
     createPostMutation.mutate(data);
   };
-  useEffect(() => {
-    if (isError) {
-      toast.error("Error fetching posts!");
-    }
-  }, [isError]);
 
   return (
     <>
@@ -86,7 +82,13 @@ export default function Home() {
               onSubmit={handleSubmit(onSubmit)}
             />
             <PostList posts={data} />
-            {isFetching ? <LoadingPosts /> : isError ? "Error" : <></>}
+            {isError ? (
+              <PostFetchError onRetry={refetchPosts} />
+            ) : isFetching ? (
+              <LoadingPosts />
+            ) : (
+              <></>
+            )}
           </div>
         </SidebarInset>
         <TrendingPanel variant="sidebar" />
