@@ -41,7 +41,9 @@ export class PostsService {
       url: result.ogUrl,
       siteName: result.ogSiteName,
       siteUrl: domain,
-      favicon: `https://${domain}${result.favicon}`,
+      favicon: result.favicon?.startsWith('/')
+        ? `https://${domain}${result.favicon}`
+        : result.favicon,
     };
   }
 }
