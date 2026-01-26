@@ -15,7 +15,9 @@ export function PostItem({ postid, title, link }: PostItemProps) {
   const { isLoading, isError, data } = useQuery<PreviewProps, Error>({
     queryKey: ["preview", link],
     queryFn: async () => {
-      const { data } = await axios.get(`/api/posts/${postid}/preview`);
+      const { data } = await axios.get(`/api/posts/${postid}/preview`, {
+        timeout: 3000,
+      });
       return data;
     },
     retry: false,
