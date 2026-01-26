@@ -20,16 +20,7 @@ export class PostsController {
   @Get()
   async fetchPosts(): Promise<PostDto[]> {
     const posts: PostEntity[] = await this.postsService.findAll();
-    return Promise.all(
-      posts.map(async (post) => {
-        const preview: LinkPreviewDto | undefined =
-          await this.postsService.genLinkPreview(post.link);
-        return {
-          ...post,
-          preview,
-        };
-      }),
-    );
+    return posts;
   }
 
   @Get(':id')
@@ -38,12 +29,18 @@ export class PostsController {
     if (!post) {
       throw new NotFoundException('Post not found!');
     }
-    const preview: LinkPreviewDto | undefined =
-      await this.postsService.genLinkPreview(post.link);
-    return {
-      ...post,
-      preview,
-    };
+    return post;
+  }
+
+  @Get(':id/preview')
+  async fetchPreview(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<LinkPreviewDto | undefined> {
+    const post: PostEntity | null = await this.postsService.find(id);
+    if (!post) {
+      throw new NotFoundException('Post not found!');
+    }
+    return this.postsService.genLinkPreview(post.link);
   }
 
   @Post()
