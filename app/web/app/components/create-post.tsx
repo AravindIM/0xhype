@@ -32,7 +32,7 @@ export function CreatePost({
 
   return (
     <Card className="gap-0! pt-2 pb-3">
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} autoComplete="off">
         <AnimatePresence>
           {hasLink && (
             <motion.div
@@ -62,6 +62,9 @@ export function CreatePost({
             className="rounded-none! border-0! focus-visible:ring-0! focus-visible:ring-offset-0! shadow-none! leading-none! p-0 font-normal text-sm"
             {...linkInputProps}
             onChange={(e) => setHasLink(Boolean(e.target.value.trim()))}
+            autoCorrect="off"
+            spellCheck="false"
+            autoCapitalize="false"
           />
           <div className="flex justify-end p-0">
             <Button
