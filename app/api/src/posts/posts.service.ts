@@ -13,8 +13,8 @@ export class PostsService {
     private postRepository: Repository<Post>,
   ) {}
 
-  async find(id: number): Promise<Post | null> {
-    return this.postRepository.findOneBy({ id });
+  async find(postid: number): Promise<Post | null> {
+    return this.postRepository.findOneBy({ postid });
   }
 
   async findAll(): Promise<Post[]> {
