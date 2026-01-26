@@ -16,6 +16,7 @@ import { TrendingPanel } from "~/components/trending-panel";
 import { Toaster } from "@/components/ui/sonner";
 import { LoadingPosts } from "@/components/loading-posts";
 import { PostFetchError } from "@/components/post-fetch-error";
+import type { PostItemProps } from "~/components/post-item";
 
 interface CreatePostInput {
   title: string;
@@ -36,15 +37,11 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const queryClient = useQueryClient();
 
-  const { isFetching, isError, data } = useQuery<PostProps[], Error>({
+  const { isFetching, isError, data } = useQuery<PostItemProps[], Error>({
     queryKey: ["posts"],
     queryFn: async () => {
-      const res = await fetch("/api/posts");
-      if (!res.ok)
-        throw new Error(
-          `Failed to load posts: ${res.status} ${res.statusText}`,
-        );
-      return (await res.json()) as PostProps[];
+      const { data } = await axios.get("/api/posts");
+      return data as PostItemProps[];
     },
   });
 
