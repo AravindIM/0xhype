@@ -6,8 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import { useImagePreload } from "./image-preload";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useImagePreload } from "@/hooks/use-image-preload";
 import { AnimatePresence, motion } from "motion/react";
 
 export interface PreviewProps {
