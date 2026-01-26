@@ -40,9 +40,12 @@ export default function Home() {
   const { isFetching, isError, data } = useQuery<PostItemProps[], Error>({
     queryKey: ["posts"],
     queryFn: async () => {
-      const { data } = await axios.get("/api/posts");
+      const { data } = await axios.get("/api/posts", {
+        timeout: 3000,
+      });
       return data as PostItemProps[];
     },
+    retry: false,
   });
 
   const refetchPosts = () => {
