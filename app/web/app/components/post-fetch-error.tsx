@@ -2,9 +2,35 @@ import { RotateCw, WifiOff } from "lucide-react";
 import type React from "react";
 import { Button } from "@/components/ui/button";
 import { useAnimate, motion } from "motion/react";
+import { useEffect } from "react";
 
 interface PostFetchErrorProps extends React.ComponentProps<"div"> {
   onRetry: React.MouseEventHandler<HTMLButtonElement>;
+}
+
+export function AnimatedWifiOff({ ...props }: React.ComponentProps<"svg">) {
+  const [scope, animate] = useAnimate();
+
+  useEffect(() => {
+    animate(
+      "path, line",
+      {
+        clipPath: ["inset(0 100% 0 0)", "inset(0 0% 0 0)"],
+        opacity: [0, 1],
+      },
+      {
+        duration: 0.4,
+        ease: "easeInOut",
+        delay: (i) => i * 0.02,
+      },
+    );
+  }, [animate]);
+
+  return (
+    <motion.div ref={scope}>
+      <WifiOff className="size-12" {...props} />
+    </motion.div>
+  );
 }
 
 export function PostFetchError({ onRetry, ...props }: PostFetchErrorProps) {
@@ -39,7 +65,7 @@ export function PostFetchError({ onRetry, ...props }: PostFetchErrorProps) {
       className="p-6 w-full flex flex-col justify-center items-center gap-3"
       {...props}
     >
-      <WifiOff className="size-12" />
+      <AnimatedWifiOff className="size-12" />
       <div>
         <p className="text-center cursor-default">
           Yeah, okay, something broke. Either the matrix glitched, or you're
