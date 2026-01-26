@@ -26,7 +26,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar {...props}>
       <SidebarHeader className="w-75 ml-auto px-8 py-0">
         <SidebarMenu>
-          <SidebarMenuItem>
+          <SidebarMenuItem key="logo">
             <SidebarMenuButton
               asChild
               className="data-[slot=sidebar-menu-button]:p-3! rounded-full text-xl text-bold w-fit h-fit"
@@ -41,7 +41,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="w-75 ml-auto px-7 py-0">
         <SidebarMenu>
           {navItems.map((item) => (
-            <SidebarMenuItem>
+            <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
                 className="p-7 rounded-full text-xl font-semi-bold w-fit"
@@ -53,7 +53,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuItem>
           ))}
 
-          <SidebarMenuItem>
+          <SidebarMenuItem key="post-button">
             <SidebarMenuButton
               asChild
               className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground p-7 rounded-full justify-center text-xl font-semi-bold"
