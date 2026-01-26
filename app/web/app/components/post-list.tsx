@@ -1,17 +1,17 @@
-import { Post, type PostProps } from "./post";
+import { PostItem, type PostItemProps } from "./post-item";
 
 interface PostListProps {
-  posts?: PostProps[];
+  posts?: PostItemProps[];
 }
 
 export function PostList({ posts }: PostListProps) {
   if (!posts || posts.length < 1) return null;
   return posts.map((post) => (
-    <Post
-      key={post.link}
+    <PostItem
+      postid={post.postid}
+      key={post.postid}
       title={post.title}
       link={post.link}
-      preview={post.preview}
       className="w-full"
     />
   ));
