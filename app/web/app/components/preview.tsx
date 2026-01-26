@@ -6,6 +6,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
+import { useImagePreload } from "./image-preload";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AnimatePresence, motion } from "motion/react";
 
 export interface PreviewProps {
   title?: string;
@@ -30,25 +33,35 @@ export function Preview({
   const hasPreviewFooter = Boolean(favicon || siteName || siteUrl);
   const hasPreviewFooterText = Boolean(siteName || siteUrl);
   const hasPreviewFooterSeparator = Boolean(siteName && siteUrl);
+  const isImagePreloaded = useImagePreload(image);
 
   return (
     <>
       {hasPreviewImage && (
-        <AspectRatio ratio={1.91 / 1}>
-          <img
-            src={image}
-            className="h-full w-full object-cover"
-            onError={(e) => {
-              const aspectRatioWrapper = e.currentTarget.closest(
-                "[data-radix-aspect-ratio-wrapper]",
-              );
+        <AnimatePresence>
+          <AspectRatio ratio={1.91 / 1} className="bg-muted rounded-none!">
+            {isImagePreloaded && (
+              <motion.img
+                src={image}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, ease: "easeIn" }}
+                className="h-full w-full object-cover"
+                loading="eager"
+                decoding="async"
+                onError={(e) => {
+                  const aspectRatioWrapper = e.currentTarget.closest(
+                    "[data-radix-aspect-ratio-wrapper]",
+                  );
 
-              if (aspectRatioWrapper instanceof HTMLElement) {
-                aspectRatioWrapper.style.display = "none";
-              }
-            }}
-          />
-        </AspectRatio>
+                  if (aspectRatioWrapper instanceof HTMLElement) {
+                    aspectRatioWrapper.style.display = "none";
+                  }
+                }}
+              />
+            )}
+          </AspectRatio>
+        </AnimatePresence>
       )}
       <Card className="gap-1 px-3">
         {hasPreviewHeader && (
@@ -64,8 +77,11 @@ export function Preview({
         {hasPreviewFooter && (
           <CardFooter className="px-3 pt-1 gap-3 flex flex-row items-center">
             {favicon && (
-              <img
+              <motion.img
                 src={favicon}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.1, ease: "easeIn" }}
                 className="h-4 w-4 shrink-0 object-contain"
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
