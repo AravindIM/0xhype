@@ -84,6 +84,7 @@ export default function Home() {
               linkInputProps={register("link", { required: true })}
               onSubmit={handleSubmit(onSubmit)}
               isSubmitting={isSubmitting}
+              isError={Boolean(createPostMutation.error)}
             />
             <PostList posts={data} />
             {isError ? (
