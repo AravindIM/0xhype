@@ -48,6 +48,13 @@ export default function Home() {
     retry: false,
   });
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CreatePostInput>();
+
   const refetchPosts = () => {
     queryClient.invalidateQueries({ queryKey: ["posts"] });
   };
@@ -56,15 +63,11 @@ export default function Home() {
     mutationFn: async (data: CreatePostInput) => {
       await axios.post("/api/posts", data);
     },
-    onSuccess: refetchPosts,
+    onSuccess: () => {
+      reset();
+      refetchPosts();
+    },
   });
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<CreatePostInput>();
 
   const onSubmit: SubmitHandler<CreatePostInput> = (data) => {
     createPostMutation.mutate(data);
