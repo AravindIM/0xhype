@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Spinner } from "@/components/ui/spinner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CircleXIcon } from "lucide-react";
 
 interface CreatePostProps {
   titleInputProps: React.InputHTMLAttributes<HTMLInputElement>;
   linkInputProps: React.InputHTMLAttributes<HTMLInputElement>;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
   isSubmitting: boolean;
+  isError: boolean;
 }
 
 export function CreatePost({
@@ -18,9 +21,17 @@ export function CreatePost({
   linkInputProps,
   onSubmit,
   isSubmitting,
+  isError,
 }: CreatePostProps) {
+  const [isErrorDismissed, setIsErrorDismissed] = useState(false);
   const [hasLink, setHasLink] = useState(false);
   const [isTitleRevealed, setIsTitleRevealed] = useState(false);
+
+  useEffect(() => {
+    if (isError) {
+      setIsErrorDismissed(false);
+    }
+  }, [isError]);
 
   const scheduleTitleRevealed = () => {
     const delay = 500;
@@ -57,12 +68,25 @@ export function CreatePost({
           )}
         </AnimatePresence>
         <CardContent>
+          {isError && !isErrorDismissed && (
+            <Alert variant="destructive">
+              <CircleXIcon />
+              <AlertDescription>
+                Ground Control didn't receive the transmission. Try again,
+                Commander.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Input
             type="text"
             placeholder="Drop your link here to share it with the world..."
             className="rounded-none! border-0! focus-visible:ring-0! focus-visible:ring-offset-0! shadow-none! leading-none! p-0 font-normal text-sm"
             {...linkInputProps}
-            onChange={(e) => setHasLink(Boolean(e.target.value.trim()))}
+            onChange={(e) => {
+              setHasLink(Boolean(e.target.value.trim()));
+              setIsErrorDismissed(true);
+            }}
             autoCorrect="off"
             spellCheck="false"
             autoCapitalize="false"
