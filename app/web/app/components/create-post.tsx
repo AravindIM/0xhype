@@ -4,17 +4,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { Spinner } from "@/components/ui/spinner";
 
 interface CreatePostProps {
   titleInputProps: React.InputHTMLAttributes<HTMLInputElement>;
   linkInputProps: React.InputHTMLAttributes<HTMLInputElement>;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
+  isSubmitting: boolean;
 }
 
 export function CreatePost({
   titleInputProps,
   linkInputProps,
   onSubmit,
+  isSubmitting,
 }: CreatePostProps) {
   const [hasLink, setHasLink] = useState(false);
   const [isTitleRevealed, setIsTitleRevealed] = useState(false);
@@ -27,8 +30,6 @@ export function CreatePost({
   useEffect(() => {
     setIsTitleRevealed(false);
   }, [hasLink]);
-
-  useEffect(() => {});
 
   return (
     <Card className="gap-0! pt-2 pb-3">
@@ -69,10 +70,15 @@ export function CreatePost({
           <div className="flex justify-end p-0">
             <Button
               type="submit"
-              className="rounded-full px-12 cursor-pointer"
-              disabled={!(hasLink && isTitleRevealed)}
+              className="flex w-28 items-center gap-2 rounded-full"
+              disabled={!(hasLink && isTitleRevealed) || isSubmitting}
             >
-              Post
+              {isSubmitting && <Spinner data-icon="inline-start" />}
+              {isSubmitting ? (
+                <div className="w-full justify-center">Posting</div>
+              ) : (
+                <div className="w-full justify-center">Post</div>
+              )}
             </Button>
           </div>
         </CardContent>
