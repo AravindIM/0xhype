@@ -52,7 +52,7 @@ export default function Home() {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { isSubmitting },
   } = useForm<CreatePostInput>();
 
   const refetchPosts = () => {
@@ -69,8 +69,8 @@ export default function Home() {
     },
   });
 
-  const onSubmit: SubmitHandler<CreatePostInput> = (data) => {
-    createPostMutation.mutate(data);
+  const onSubmit: SubmitHandler<CreatePostInput> = async (data) => {
+    await createPostMutation.mutateAsync(data);
   };
 
   return (
@@ -83,6 +83,7 @@ export default function Home() {
               titleInputProps={register("title")}
               linkInputProps={register("link", { required: true })}
               onSubmit={handleSubmit(onSubmit)}
+              isSubmitting={isSubmitting}
             />
             <PostList posts={data} />
             {isError ? (
