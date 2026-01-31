@@ -4,6 +4,7 @@ import { Link } from "react-router";
 import { cn } from "~/lib/utils";
 import { Preview, type PreviewProps } from "./preview";
 import { PreviewSkeleton } from "./preview-skeleton";
+import { PreviewBlank } from "./preview-blank";
 
 export interface PostProps extends React.ComponentProps<"div"> {
   title: string;
@@ -30,8 +31,8 @@ export function Post({
         {isPreviewLoading ? (
           <PreviewSkeleton />
         ) : isPreviewError || !preview ? (
-          <Link to={link} className="text-blue-500 px-6">
-            {link}
+          <Link to={link} target="_blank" rel="noopener noreferrer">
+            <PreviewBlank link={link} />
           </Link>
         ) : (
           <Link to={link} target="_blank" rel="noopener noreferrer">
