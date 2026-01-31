@@ -37,12 +37,18 @@ export class PostsController {
   @Get(':postid/preview')
   async fetchPreview(
     @Param('postid', ParseIntPipe) id: number,
-  ): Promise<LinkPreviewDto | undefined> {
+  ): Promise<LinkPreviewDto | null> {
     const post: PostEntity | null = await this.postsService.find(id);
     if (!post) {
       throw new NotFoundException('Post not found!');
     }
-    return this.postsService.genLinkPreview(post.link);
+    try {
+      const preview = await this.postsService.genLinkPreview(post.link);
+      return preview || null;
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
   }
 
   @Post()
