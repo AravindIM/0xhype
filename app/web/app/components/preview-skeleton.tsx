@@ -7,13 +7,12 @@ import {
 } from "@/components/ui/card";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PreviewImage } from "./preview-image";
 
 export function PreviewSkeleton() {
   return (
     <>
-      <AspectRatio ratio={1.91 / 1} className="rounded-none!">
-        <Skeleton className="h-full w-full rounded-none! animate-pulse" />
-      </AspectRatio>
+      <PreviewImage isLoading={true} />
       <Card className="gap-2.5 px-3">
         <CardHeader className="px-3">
           <Skeleton className="leading-none h-4  w-3/4 animate-pulse" />
