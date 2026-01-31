@@ -8,6 +8,7 @@ import {
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import { useImagePreload } from "@/hooks/use-image-preload";
 import { AnimatePresence, motion } from "motion/react";
+import { PreviewImage } from "./preview-image";
 
 export interface PreviewProps {
   title?: string;
@@ -26,42 +27,15 @@ export function Preview({
   siteUrl,
   favicon,
 }: PreviewProps) {
-  const hasPreviewImage: boolean = Boolean(image);
   const hasPreviewHeader: boolean = Boolean(title);
   const hasPreviewBody: boolean = Boolean(description);
   const hasPreviewFooter = Boolean(favicon || siteName || siteUrl);
   const hasPreviewFooterText = Boolean(siteName || siteUrl);
   const hasPreviewFooterSeparator = Boolean(siteName && siteUrl);
-  const isImagePreloaded = useImagePreload(image);
 
   return (
     <>
-      {hasPreviewImage && (
-        <AnimatePresence>
-          <AspectRatio ratio={1.91 / 1} className="bg-muted rounded-none!">
-            {isImagePreloaded && (
-              <motion.img
-                src={image}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, ease: "easeIn" }}
-                className="h-full w-full object-cover"
-                loading="eager"
-                decoding="async"
-                onError={(e) => {
-                  const aspectRatioWrapper = e.currentTarget.closest(
-                    "[data-radix-aspect-ratio-wrapper]",
-                  );
-
-                  if (aspectRatioWrapper instanceof HTMLElement) {
-                    aspectRatioWrapper.style.display = "none";
-                  }
-                }}
-              />
-            )}
-          </AspectRatio>
-        </AnimatePresence>
-      )}
+      <PreviewImage src={image} />
       <Card className="gap-1 px-3">
         {hasPreviewHeader && (
           <CardHeader className="px-3">
