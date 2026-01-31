@@ -20,7 +20,6 @@ export function PostItem({ postid, title, link }: PostItemProps) {
       });
       return data;
     },
-    retry: false,
     refetchOnWindowFocus: false,
   });
 
