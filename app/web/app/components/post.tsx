@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type React from "react";
 import { Link } from "react-router";
-import { Preview, type PreviewProps } from "./preview";
+import { Preview, type PreviewProps } from "./preview/preview";
 
 export interface PostProps extends React.ComponentProps<"div"> {
   title: string;

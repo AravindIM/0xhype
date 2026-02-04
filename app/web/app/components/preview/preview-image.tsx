@@ -1,5 +1,5 @@
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 import { Link } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useImagePreload } from "~/hooks/use-image-preload";
