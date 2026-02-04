@@ -1,10 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type React from "react";
 import { Link } from "react-router";
-import { cn } from "~/lib/utils";
 import { Preview, type PreviewProps } from "./preview";
-import { PreviewSkeleton } from "./preview-skeleton";
-import { PreviewBlank } from "./preview-blank";
 
 export interface PostProps extends React.ComponentProps<"div"> {
   title: string;
@@ -28,24 +25,18 @@ export function Post({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent className="px-0">
-        {isPreviewLoading ? (
-          <PreviewSkeleton />
-        ) : isPreviewError || !preview ? (
-          <Link to={link} target="_blank" rel="noopener noreferrer">
-            <PreviewBlank link={link} />
-          </Link>
-        ) : (
-          <Link to={link} target="_blank" rel="noopener noreferrer">
-            <Preview
-              title={preview.title}
-              description={preview.description}
-              image={preview.image}
-              siteName={preview.siteName}
-              siteUrl={preview.siteUrl}
-              favicon={preview.favicon}
-            />
-          </Link>
-        )}
+        <Link to={link} target="_blank" rel="noopener noreferrer">
+          <Preview
+            link={link}
+            title={preview?.title}
+            description={preview?.description}
+            image={preview?.image}
+            siteName={preview?.siteName}
+            siteUrl={preview?.siteUrl}
+            favicon={preview?.favicon}
+            isLoading={isPreviewLoading}
+          />
+        </Link>
       </CardContent>
     </Card>
   );
