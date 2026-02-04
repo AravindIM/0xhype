@@ -1,5 +1,5 @@
 import type React from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { PreviewProps } from "./preview/preview";
 import { Post } from "./post";
 import axios from "axios";

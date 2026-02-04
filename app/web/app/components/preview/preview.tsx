@@ -1,13 +1,3 @@
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import { useImagePreload } from "@/hooks/use-image-preload";
-import { AnimatePresence, motion } from "motion/react";
 import { PreviewImage } from "./preview-image";
 import { PreviewInfo } from "./preview-info";
 
