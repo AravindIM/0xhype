@@ -95,7 +95,7 @@ Before you begin, ensure you have the following installed:
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/0xhype.git
+   git clone https://gitlab.com/AravindIM/0xhype.git
    cd 0xhype
    ```
 
@@ -394,11 +394,10 @@ With the conditions that you:
 
 ## Contact
 
-- **Project Repository**: [0xhype on GitHub](https://github.com/yourusername/0xhype)
-- **Report Issues**: [GitHub Issues](https://github.com/yourusername/0xhype/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/0xhype/discussions)
+- **Project Repository**: [0xhype on Gitlab](https://gitlab.com/AravindIM/0xhype)
+- **Report Issues**: [Gitlab Issues](https://gitlab.com/AravindIM/0xhype/-/issues)
 
-For questions, suggestions, or feedback, please open an issue or start a discussion on GitHub.
+For questions, suggestions, or feedback, please open an issue or start a discussion on Gitlab.
 
 ---
 
