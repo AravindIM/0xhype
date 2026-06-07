@@ -12,6 +12,8 @@ export function PostList({ posts }: PostListProps) {
       key={post.postid}
       title={post.title}
       link={post.link}
+      username={post.username}
+      fullName={post.fullName}
       className="w-full"
     />
   ));
