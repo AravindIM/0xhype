@@ -2,22 +2,21 @@ import type React from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { PreviewProps } from "./preview/preview";
 import { Post } from "./post";
-import axios from "axios";
+import { apiClient } from "~/lib/axios";
 
 export interface PostItemProps extends React.ComponentProps<"div"> {
   postid: number;
   title: string;
   link: string;
+  username: string;
+  fullName: string;
 }
-export function PostItem({ postid, title, link }: PostItemProps) {
-  //   const queryClient = useQueryClient();
 
+export function PostItem({ postid, title, link, username, fullName }: PostItemProps) {
   const { isLoading, isError, data } = useQuery<PreviewProps, Error>({
     queryKey: ["preview", link],
     queryFn: async () => {
-      const { data } = await axios.get(`/api/posts/${postid}/preview`, {
-        timeout: 3000,
-      });
+      const { data } = await apiClient.get(`/api/posts/${postid}/preview`);
       return data;
     },
     refetchOnWindowFocus: false,
@@ -27,6 +26,8 @@ export function PostItem({ postid, title, link }: PostItemProps) {
     <Post
       title={title}
       link={link}
+      username={username}
+      fullName={fullName}
       preview={data}
       isPreviewLoading={isLoading}
       isPreviewError={isError}

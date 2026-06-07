@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './post.entity';
+import { User } from '../users/user.entity';
 import { Repository } from 'typeorm';
 import scrapePreview from 'open-graph-scraper';
 import { LinkPreviewDto } from './dto/link-preview.dto';
@@ -19,14 +20,16 @@ export class PostsService {
 
   async findAll(): Promise<Post[]> {
     return this.postRepository.find({
-      order: {
-        date: 'DESC',
-      },
+      relations: ['user'],
+      order: { date: 'DESC' },
     });
   }
 
-  async create(createPostDto: CreatePostDto): Promise<Post> {
-    const post = this.postRepository.create(createPostDto);
+  async create(createPostDto: CreatePostDto, userId: number): Promise<Post> {
+    const post = this.postRepository.create({
+      ...createPostDto,
+      user: { id: userId } as User,
+    });
     return this.postRepository.save(post);
   }
 

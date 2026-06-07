@@ -1,4 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import type React from "react";
 import { Link } from "react-router";
 import { Preview, type PreviewProps } from "./preview/preview";
@@ -6,6 +12,8 @@ import { Preview, type PreviewProps } from "./preview/preview";
 export interface PostProps extends React.ComponentProps<"div"> {
   title: string;
   link: string;
+  username: string;
+  fullName: string;
   preview?: PreviewProps;
   isPreviewLoading: boolean;
   isPreviewError: boolean;
@@ -14,6 +22,8 @@ export interface PostProps extends React.ComponentProps<"div"> {
 export function Post({
   title,
   link,
+  username,
+  fullName,
   preview,
   isPreviewLoading = false,
   isPreviewError = false,
@@ -22,8 +32,11 @@ export function Post({
   return (
     <Card {...props}>
       <CardHeader className="flex flex-row items-center">
-        <CardTitle>{title}</CardTitle>
+        <div className="flex flex-col gap-0.5">
+          <CardTitle>{title}</CardTitle>
+        </div>
       </CardHeader>
+
       <CardContent className="px-0">
         <Link to={link} target="_blank" rel="noopener noreferrer">
           <Preview
@@ -38,6 +51,14 @@ export function Post({
           />
         </Link>
       </CardContent>
+      <CardFooter className="flex flex-row items-center py-0">
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="font-medium">{fullName}</span>
+            <span className="text-muted-foreground">@{username}</span>
+          </div>
+        </div>
+      </CardFooter>
     </Card>
   );
 }

@@ -1,4 +1,8 @@
 export class PostDto {
-  title?: string;
+  postid: number;
+  title: string;
   link: string;
+  date: Date;
+  username: string;
+  fullName: string;
 }

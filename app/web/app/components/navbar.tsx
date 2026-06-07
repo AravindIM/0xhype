@@ -1,11 +1,13 @@
-import { Link } from "react-router";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import Logo from "@/assets/logo.svg?react";
 
 export function NavBar() {
   return (
-    <nav className="flex items-center justify-between p-4 bg-background border-b">
-      <Link to="/" className="text-xl font-bold">
-        0xhype
-      </Link>
+    <nav className="flex md:hidden items-center p-3 bg-background border-b sticky top-0 z-10">
+      <SidebarTrigger />
+      <div className="absolute left-1/2 -translate-x-1/2">
+        <Logo className="size-8 text-primary" />
+      </div>
     </nav>
   );
 }
