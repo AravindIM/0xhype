@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { useNavigate } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "./+types/home";
 import { NavBar } from "@/components/navbar";
@@ -17,7 +18,6 @@ import { PostFetchError } from "@/components/post-fetch-error";
 import type { PostItemProps } from "~/components/post-item";
 import { useAuth } from "~/context/auth-context";
 import { apiClient } from "~/lib/axios";
-import { AuthModal } from "~/components/auth-modal";
 import { Fab } from "~/components/fab";
 
 interface CreatePostInput {
@@ -39,7 +39,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const navigate = useNavigate();
   const createPostRef = useRef<HTMLDivElement>(null);
 
   const { isFetching, isError, data } = useQuery<PostItemProps[], Error>({
@@ -81,7 +81,7 @@ export default function Home() {
       createPostRef.current?.scrollIntoView({ behavior: "smooth" });
       createPostRef.current?.querySelector("input")?.focus();
     } else {
-      setAuthModalOpen(true);
+      navigate("/login");
     }
   };
 
@@ -122,7 +122,6 @@ export default function Home() {
         <TrendingPanel />
       </SidebarProvider>
       <Toaster position="top-center" />
-      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
       <Fab onClick={handleFabClick} />
     </>
   );
