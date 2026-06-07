@@ -1,22 +1,24 @@
+import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "./+types/home";
 import { NavBar } from "@/components/navbar";
-import { Post, type PostProps } from "~/components/post";
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/app-sidebar";
 import { CreatePost } from "~/components/create-post";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import axios from "axios";
 import { PostList } from "~/components/post-list";
 import { TrendingPanel } from "~/components/trending-panel";
 import { Toaster } from "@/components/ui/sonner";
 import { LoadingPosts } from "@/components/loading-posts";
 import { PostFetchError } from "@/components/post-fetch-error";
 import type { PostItemProps } from "~/components/post-item";
+import { useAuth } from "~/context/auth-context";
+import { apiClient } from "~/lib/axios";
+import { AuthModal } from "~/components/auth-modal";
+import { Fab } from "~/components/fab";
 
 interface CreatePostInput {
   title: string;
@@ -36,13 +38,14 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const createPostRef = useRef<HTMLDivElement>(null);
 
   const { isFetching, isError, data } = useQuery<PostItemProps[], Error>({
     queryKey: ["posts"],
     queryFn: async () => {
-      const { data } = await axios.get("/api/posts", {
-        timeout: 3000,
-      });
+      const { data } = await apiClient.get("/api/posts");
       return data as PostItemProps[];
     },
     retry: false,
@@ -61,7 +64,7 @@ export default function Home() {
 
   const createPostMutation = useMutation({
     mutationFn: async (data: CreatePostInput) => {
-      await axios.post("/api/posts", data);
+      await apiClient.post("/api/posts", data);
     },
     onSuccess: () => {
       reset();
@@ -73,19 +76,39 @@ export default function Home() {
     await createPostMutation.mutateAsync(data);
   };
 
+  const handleFabClick = () => {
+    if (user) {
+      createPostRef.current?.scrollIntoView({ behavior: "smooth" });
+      createPostRef.current?.querySelector("input")?.focus();
+    } else {
+      setAuthModalOpen(true);
+    }
+  };
+
   return (
     <>
       <SidebarProvider>
-        <AppSidebar variant="sidebar" />
+        <AppSidebar
+          variant="sidebar"
+          onPostClick={() => {
+            createPostRef.current?.scrollIntoView({ behavior: "smooth" });
+            createPostRef.current?.querySelector("input")?.focus();
+          }}
+        />
         <SidebarInset>
+          <NavBar />
           <div className="flex flex-col justify-center">
-            <CreatePost
-              titleInputProps={register("title")}
-              linkInputProps={register("link", { required: true })}
-              onSubmit={handleSubmit(onSubmit)}
-              isSubmitting={isSubmitting}
-              isError={Boolean(createPostMutation.error)}
-            />
+            {user && (
+              <div ref={createPostRef}>
+                <CreatePost
+                  titleInputProps={register("title")}
+                  linkInputProps={register("link", { required: true })}
+                  onSubmit={handleSubmit(onSubmit)}
+                  isSubmitting={isSubmitting}
+                  isError={Boolean(createPostMutation.error)}
+                />
+              </div>
+            )}
             <PostList posts={data} />
             {isError ? (
               <PostFetchError onRetry={refetchPosts} />
@@ -96,9 +119,11 @@ export default function Home() {
             )}
           </div>
         </SidebarInset>
-        <TrendingPanel variant="sidebar" />
+        <TrendingPanel />
       </SidebarProvider>
       <Toaster position="top-center" />
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+      <Fab onClick={handleFabClick} />
     </>
   );
 }
