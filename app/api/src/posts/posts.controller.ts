@@ -7,20 +7,30 @@ import {
   Param,
   ParseIntPipe,
   Body,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { Post as PostEntity } from './post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
-import { PostDto } from './dto/post.dto';
 import { LinkPreviewDto } from './dto/link-preview.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('posts')
 export class PostsController {
   constructor(private postsService: PostsService) {}
+
   @Get()
-  async fetchPosts(): Promise<PostEntity[]> {
-    const posts: PostEntity[] = await this.postsService.findAll();
-    return posts;
+  async fetchPosts() {
+    const posts = await this.postsService.findAll();
+    return posts.map((p) => ({
+      postid: p.postid,
+      title: p.title,
+      link: p.link,
+      date: p.date,
+      username: p.user.username,
+      fullName: `${p.user.firstName} ${p.user.lastName}`,
+    }));
   }
 
   @Get(':postid')
@@ -52,9 +62,15 @@ export class PostsController {
   }
 
   @Post()
-  async create(@Body() createPostDto: CreatePostDto): Promise<string> {
-    const post: PostEntity | null =
-      await this.postsService.create(createPostDto);
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @Body() createPostDto: CreatePostDto,
+    @Request() req: any,
+  ): Promise<string> {
+    const post: PostEntity | null = await this.postsService.create(
+      createPostDto,
+      req.user.userId,
+    );
     if (!post) {
       throw new InternalServerErrorException();
     }
