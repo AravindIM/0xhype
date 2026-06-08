@@ -16,7 +16,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return "Hello World!"', () => {
-      expect(appController.getHome()).toBe('Hello World!');
+      expect(appController.getHome()).toBe('0xhype API Service');
     });
   });
 });
