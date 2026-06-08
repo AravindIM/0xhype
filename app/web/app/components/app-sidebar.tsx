@@ -30,10 +30,11 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
-  const { user, logout } = useAuth();
+  const { user, isLoading: isAuthLoading, logout } = useAuth();
   const navigate = useNavigate();
 
   const handlePostClick = () => {
+    if (isAuthLoading) return;
     if (user) {
       onPostClick?.();
     } else {
@@ -93,7 +94,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarContent>
 
-      {!user && (
+      {!isAuthLoading && !user && (
         <SidebarFooter className="px-7 pb-6 md:w-75 md:ml-auto">
           <Button
             variant="outline"

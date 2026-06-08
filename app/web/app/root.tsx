@@ -9,10 +9,9 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "~/context/auth-context";
-
-const queryClient = new QueryClient();
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/x-icon", href: "/favicon.ico?v=2" },
@@ -47,6 +46,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const [queryClient] = useState(() => new QueryClient());
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
