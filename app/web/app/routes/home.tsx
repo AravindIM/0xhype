@@ -38,7 +38,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
   const createPostRef = useRef<HTMLDivElement>(null);
 
@@ -77,6 +77,7 @@ export default function Home() {
   };
 
   const handleFabClick = () => {
+    if (isAuthLoading) return;
     if (user) {
       createPostRef.current?.scrollIntoView({ behavior: "smooth" });
       createPostRef.current?.querySelector("input")?.focus();
