@@ -38,7 +38,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
   const createPostRef = useRef<HTMLDivElement>(null);
 
@@ -49,6 +49,8 @@ export default function Home() {
       return data as PostItemProps[];
     },
     retry: false,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 
   const {
@@ -77,6 +79,7 @@ export default function Home() {
   };
 
   const handleFabClick = () => {
+    if (isAuthLoading) return;
     if (user) {
       createPostRef.current?.scrollIntoView({ behavior: "smooth" });
       createPostRef.current?.querySelector("input")?.focus();
@@ -114,6 +117,11 @@ export default function Home() {
               <PostFetchError onRetry={refetchPosts} />
             ) : isFetching ? (
               <LoadingPosts />
+            ) : data?.length === 0 ? (
+              <div className="py-16 flex flex-col items-center gap-2 text-muted-foreground">
+                <p className="text-lg font-medium">No posts yet</p>
+                <p className="text-sm">Be the first to share something.</p>
+              </div>
             ) : (
               <></>
             )}
