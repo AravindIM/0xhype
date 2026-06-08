@@ -1,4 +1,11 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: 0xhype-redis
+    networks:
+      - 0xhype-network
+    restart: unless-stopped
+
   db:
     image: postgres:18.1-alpine3.23
     container_name: 0xhype-db
@@ -76,6 +83,7 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       ALLOWED_ORIGINS: '${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173}'
       JWT_SECRET: '${JWT_SECRET:-change-me-in-production}'
+      REDIS_URL: 'redis://redis:6379'
     volumes:
       - ./app/api/src:/app/src:ro
       - ./app/api/test:/app/test:ro
@@ -105,6 +113,9 @@ services:
         - action: sync
           path: ./app/api/tsconfig.build.json
           target: /app/tsconfig.build.json
+    depends_on:
+      - db
+      - redis
     restart: unless-stopped
     networks:
       - 0xhype-network
