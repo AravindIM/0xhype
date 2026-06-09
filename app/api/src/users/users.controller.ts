@@ -1,16 +1,13 @@
 import {
   Controller,
-  Get,
   Patch,
   Post,
   Delete,
-  Param,
   Body,
   Request,
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -18,7 +15,6 @@ import { UsersService } from './users.service';
 import { MinioService } from '../storage/minio.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { PublicProfileDto } from './dto/public-profile.dto';
 
 @Controller('users')
 export class UsersController {
@@ -106,38 +102,5 @@ export class UsersController {
   async deleteBanner(@Request() req: any) {
     await this.usersService.clearBannerUrl(req.user.userId);
     return { bannerUrl: null };
-  }
-
-  @Get(':username')
-  async getProfile(@Param('username') username: string): Promise<PublicProfileDto> {
-    const result = await this.usersService.findByUsername(username);
-    if (!result) throw new NotFoundException('User not found');
-    const { user, postCount } = result;
-    return {
-      username: user.username,
-      fullName: `${user.firstName} ${user.lastName}`,
-      bio: user.bio,
-      location: user.location,
-      website: user.website,
-      avatarUrl: user.avatarUrl,
-      bannerUrl: user.bannerUrl,
-      createdAt: user.createdAt,
-      postCount,
-    };
-  }
-
-  @Get(':username/posts')
-  async getUserPosts(@Param('username') username: string) {
-    const result = await this.usersService.findByUsername(username);
-    if (!result) throw new NotFoundException('User not found');
-    const posts = await this.usersService.getUserPosts(result.user.id);
-    return posts.map((p) => ({
-      postid: p.postid,
-      title: p.title,
-      link: p.link,
-      date: p.date,
-      username: p.user.username,
-      fullName: `${p.user.firstName} ${p.user.lastName}`,
-    }));
   }
 }
