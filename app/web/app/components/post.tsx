@@ -14,7 +14,7 @@ export interface PostProps extends React.ComponentProps<"div"> {
   title: string;
   link: string;
   username: string;
-  fullName: string;
+  displayName: string;
   preview?: PreviewProps;
   isPreviewLoading: boolean;
   isPreviewError: boolean;
@@ -25,7 +25,7 @@ export function Post({
   title,
   link,
   username,
-  fullName,
+  displayName,
   preview,
   isPreviewLoading = false,
   isPreviewError = false,
@@ -63,7 +63,7 @@ export function Post({
       <CardFooter className="flex flex-row items-center py-0">
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="font-medium">{fullName}</span>
+            <span className="font-medium">{displayName}</span>
             <Link
               to={`/${username}`}
               className="text-muted-foreground hover:underline"

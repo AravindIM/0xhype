@@ -21,15 +21,15 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     const url = new URL(request.url);
     const res = await fetch(`${url.origin}/api/${params.username}`);
     if (!res.ok) return { profile: null };
-    return { profile: (await res.json()) as { fullName: string } };
+    return { profile: (await res.json()) as { displayName: string } };
   } catch {
     return { profile: null };
   }
 }
 
 export function meta({ data, params }: Route.MetaArgs) {
-  if (data?.profile?.fullName) {
-    return [{ title: `${data.profile.fullName} (@${params.username}) / 0xhype` }];
+  if (data?.profile?.displayName) {
+    return [{ title: `${data.profile.displayName} (@${params.username}) / 0xhype` }];
   }
   return [{ title: `@${params.username} / 0xhype` }];
 }
@@ -72,8 +72,8 @@ export default function Profile() {
       : `https://${profile.website}`
     : null;
 
-  const initials = profile?.fullName
-    ? profile.fullName
+  const initials = profile?.displayName
+    ? profile.displayName
         .split(" ")
         .map((n) => n[0])
         .join("")
@@ -136,7 +136,7 @@ export default function Profile() {
                   <Skeleton className="h-5 w-32" />
                 ) : profile ? (
                   <>
-                    <p className="font-bold text-base leading-tight truncate">{profile.fullName}</p>
+                    <p className="font-bold text-base leading-tight truncate">{profile.displayName}</p>
                     <p className="text-xs text-muted-foreground">
                       {profile.postCount} {profile.postCount === 1 ? "Post" : "Posts"}
                     </p>
@@ -168,7 +168,7 @@ export default function Profile() {
                 ) : profile?.avatarUrl ? (
                   <img
                     src={profile.avatarUrl}
-                    alt={profile.fullName}
+                    alt={profile.displayName}
                     className="size-20 rounded-full object-cover ring-4 ring-background"
                   />
                 ) : (
@@ -202,7 +202,7 @@ export default function Profile() {
               ) : profile ? (
                 <>
                   <div>
-                    <p className="text-xl font-bold leading-tight">{profile.fullName}</p>
+                    <p className="text-xl font-bold leading-tight">{profile.displayName}</p>
                     <p className="text-sm text-muted-foreground">@{profile.username}</p>
                   </div>
 

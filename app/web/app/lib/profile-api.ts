@@ -3,7 +3,7 @@ import type { PostItemProps } from '~/components/post-item';
 
 export interface PublicProfile {
   username: string;
-  fullName: string;
+  displayName: string;
   bio: string | null;
   location: string | null;
   website: string | null;

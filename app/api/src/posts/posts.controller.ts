@@ -14,7 +14,7 @@ export class PostsController {
       link: p.link,
       date: p.date,
       username: p.user.username,
-      fullName: `${p.user.firstName} ${p.user.lastName}`,
+      displayName: p.user.displayName,
     }));
   }
 }

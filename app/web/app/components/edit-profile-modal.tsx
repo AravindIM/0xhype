@@ -34,14 +34,14 @@ export function EditProfileModal({
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
-  const [name, setName] = useState(profile.fullName);
+  const [name, setName] = useState(profile.displayName);
   const [bio, setBio] = useState(profile.bio ?? "");
   const [location, setLocation] = useState(profile.location ?? "");
   const [website, setWebsite] = useState(profile.website ?? "");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatarUrl);
   const [bannerPreview, setBannerPreview] = useState<string | null>(profile.bannerUrl);
 
-  const initials = (name || profile.fullName)
+  const initials = (name || profile.displayName)
     .split(" ")
     .filter(Boolean)
     .map((n) => n[0])
@@ -76,11 +76,8 @@ export function EditProfileModal({
 
   const profileMutation = useMutation({
     mutationFn: async () => {
-      const [firstName, ...rest] = name.trim().split(" ");
-      const lastName = rest.join(" ");
       await apiClient.patch("/api/users/me", {
-        firstName: firstName || undefined,
-        lastName: lastName || undefined,
+        displayName: name.trim() || undefined,
         bio: bio.trim() || undefined,
         location: location.trim() || undefined,
         website: website.trim() || undefined,

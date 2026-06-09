@@ -28,7 +28,9 @@ export class UsersService {
     return this.userRepository.findOneBy({ id });
   }
 
-  async findByUsername(username: string): Promise<{ user: User; postCount: number } | null> {
+  async findByUsername(
+    username: string,
+  ): Promise<{ user: User; postCount: number } | null> {
     const result = await this.userRepository
       .createQueryBuilder('user')
       .leftJoin('user.posts', 'post')
@@ -45,8 +47,7 @@ export class UsersService {
   async updateProfile(userId: number, dto: UpdateProfileDto): Promise<User> {
     const user = await this.findById(userId);
     if (!user) throw new Error('User not found');
-    if (dto.firstName !== undefined) user.firstName = dto.firstName;
-    if (dto.lastName !== undefined) user.lastName = dto.lastName;
+    if (dto.displayName !== undefined) user.displayName = dto.displayName;
     if (dto.bio !== undefined) user.bio = dto.bio;
     if (dto.location !== undefined) user.location = dto.location;
     if (dto.website !== undefined) user.website = dto.website;
@@ -76,8 +77,7 @@ export class UsersService {
   async create(dto: CreateUserDto): Promise<User> {
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const user = this.userRepository.create({
-      firstName: dto.firstName,
-      lastName: dto.lastName,
+      displayName: dto.displayName,
       email: dto.email,
       username: dto.username,
       passwordHash,

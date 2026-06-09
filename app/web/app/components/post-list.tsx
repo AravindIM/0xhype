@@ -13,7 +13,7 @@ export function PostList({ posts }: PostListProps) {
       title={post.title}
       link={post.link}
       username={post.username}
-      fullName={post.fullName}
+      displayName={post.displayName}
       className="w-full"
     />
   ));

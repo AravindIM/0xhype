@@ -15,7 +15,8 @@ export class MinioService implements OnModuleInit {
     const port = parseInt(process.env.MINIO_PORT ?? '9000', 10);
     const useSSL = process.env.MINIO_USE_SSL === 'true';
     this.bucket = process.env.MINIO_BUCKET ?? 'avatars';
-    this.publicUrl = process.env.MINIO_PUBLIC_URL ?? `http://${endpoint}:${port}`;
+    this.publicUrl =
+      process.env.MINIO_PUBLIC_URL ?? `http://${endpoint}:${port}`;
 
     this.client = new Minio.Client({
       endPoint: endpoint,
@@ -59,9 +60,15 @@ export class MinioService implements OnModuleInit {
   ): Promise<string> {
     const ext = extname(originalName) || '.jpg';
     const objectName = `${randomUUID()}${ext}`;
-    await this.client.putObject(this.bucket, objectName, buffer, buffer.length, {
-      'Content-Type': mimetype,
-    });
+    await this.client.putObject(
+      this.bucket,
+      objectName,
+      buffer,
+      buffer.length,
+      {
+        'Content-Type': mimetype,
+      },
+    );
     return `${this.publicUrl}/${this.bucket}/${objectName}`;
   }
 }
