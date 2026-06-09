@@ -52,6 +52,14 @@ export class PostsService {
     return posts;
   }
 
+  async findByUserId(userId: number): Promise<Post[]> {
+    return this.postRepository.find({
+      where: { user: { id: userId } },
+      relations: ['user'],
+      order: { date: 'DESC' },
+    });
+  }
+
   async create(createPostDto: CreatePostDto, userId: number): Promise<Post> {
     const post = this.postRepository.create({
       ...createPostDto,
