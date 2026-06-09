@@ -10,6 +10,7 @@ import { Link } from "react-router";
 import { Preview, type PreviewProps } from "./preview/preview";
 
 export interface PostProps extends React.ComponentProps<"div"> {
+  postid: number;
   title: string;
   link: string;
   username: string;
@@ -20,6 +21,7 @@ export interface PostProps extends React.ComponentProps<"div"> {
 }
 
 export function Post({
+  postid,
   title,
   link,
   username,
@@ -33,7 +35,14 @@ export function Post({
     <Card {...props}>
       <CardHeader className="flex flex-row items-center">
         <div className="flex flex-col gap-0.5">
-          <CardTitle>{title}</CardTitle>
+          <CardTitle>
+            <Link
+              to={`/${username}/posts/${postid}`}
+              className="hover:underline"
+            >
+              {title}
+            </Link>
+          </CardTitle>
         </div>
       </CardHeader>
 
@@ -56,7 +65,7 @@ export function Post({
           <div className="flex items-center gap-1.5 text-xs">
             <span className="font-medium">{fullName}</span>
             <Link
-              to={`/profile/${username}`}
+              to={`/${username}`}
               className="text-muted-foreground hover:underline"
               onClick={(e) => e.stopPropagation()}
             >

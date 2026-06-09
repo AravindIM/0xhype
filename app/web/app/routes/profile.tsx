@@ -19,7 +19,7 @@ import { TrendingPanel } from "~/components/trending-panel";
 export async function loader({ params, request }: Route.LoaderArgs) {
   try {
     const url = new URL(request.url);
-    const res = await fetch(`${url.origin}/api/users/${params.username}`);
+    const res = await fetch(`${url.origin}/api/${params.username}`);
     if (!res.ok) return { profile: null };
     return { profile: (await res.json()) as { fullName: string } };
   } catch {
