@@ -18,7 +18,7 @@ export class AuthService {
   async register(dto: CreateUserDto, res: Response) {
     const user = await this.usersService.create(dto);
     this.setTokenCookie(res, user.id, user.username);
-    return { username: user.username, fullName: `${user.firstName} ${user.lastName}` };
+    return { username: user.username, fullName: `${user.firstName} ${user.lastName}`, avatarUrl: user.avatarUrl };
   }
 
   async login(dto: LoginDto, res: Response) {
@@ -27,13 +27,17 @@ export class AuthService {
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
     this.setTokenCookie(res, user.id, user.username);
-    return { username: user.username, fullName: `${user.firstName} ${user.lastName}` };
+    return { username: user.username, fullName: `${user.firstName} ${user.lastName}`, avatarUrl: user.avatarUrl };
   }
 
   async getMe(userId: number) {
     const user = await this.usersService.findById(userId);
     if (!user) throw new UnauthorizedException();
-    return { username: user.username, fullName: `${user.firstName} ${user.lastName}` };
+    return {
+      username: user.username,
+      fullName: `${user.firstName} ${user.lastName}`,
+      avatarUrl: user.avatarUrl,
+    };
   }
 
   private setTokenCookie(res: Response, userId: number, username: string) {
