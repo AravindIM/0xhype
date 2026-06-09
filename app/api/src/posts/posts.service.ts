@@ -24,6 +24,13 @@ export class PostsService {
     private cacheManager: Cache,
   ) {}
 
+  async findWithUser(postid: number): Promise<Post | null> {
+    return this.postRepository.findOne({
+      where: { postid },
+      relations: ['user'],
+    });
+  }
+
   async find(postid: number): Promise<Post | null> {
     const key = postKey(postid);
     try {
