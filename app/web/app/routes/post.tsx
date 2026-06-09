@@ -87,7 +87,7 @@ export default function PostDetail() {
               title={post.title}
               link={post.link}
               username={post.username}
-              fullName={post.fullName}
+              displayName={post.displayName}
               preview={preview}
               isPreviewLoading={previewLoading}
               isPreviewError={previewError}

@@ -25,14 +25,11 @@ export class UsersController {
 
   @Patch('me')
   @UseGuards(JwtAuthGuard)
-  async updateProfile(
-    @Request() req: any,
-    @Body() dto: UpdateProfileDto,
-  ) {
+  async updateProfile(@Request() req: any, @Body() dto: UpdateProfileDto) {
     const user = await this.usersService.updateProfile(req.user.userId, dto);
     return {
       username: user.username,
-      fullName: `${user.firstName} ${user.lastName}`,
+      displayName: user.displayName,
       bio: user.bio,
       location: user.location,
       website: user.website,

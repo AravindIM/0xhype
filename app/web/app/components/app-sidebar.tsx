@@ -43,7 +43,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
   };
 
   const initials = user
-    ? user.fullName
+    ? user.displayName
         .split(" ")
         .map((n) => n[0])
         .join("")
@@ -127,7 +127,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
             {avatarUrl ? (
               <img
                 src={avatarUrl}
-                alt={user?.fullName}
+                alt={user?.displayName}
                 className="size-10 rounded-full object-cover shrink-0"
               />
             ) : (
@@ -136,7 +136,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
               </div>
             )}
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-sm font-semibold truncate">{user.fullName}</span>
+              <span className="text-sm font-semibold truncate">{user.displayName}</span>
               <span className="text-xs text-muted-foreground truncate">@{user.username}</span>
             </div>
             <Button

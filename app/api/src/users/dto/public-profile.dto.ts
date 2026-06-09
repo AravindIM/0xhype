@@ -1,6 +1,6 @@
 export class PublicProfileDto {
   username: string;
-  fullName: string;
+  displayName: string;
   bio: string | null;
   location: string | null;
   website: string | null;

@@ -9,10 +9,10 @@ export interface PostItemProps extends React.ComponentProps<"div"> {
   title: string;
   link: string;
   username: string;
-  fullName: string;
+  displayName: string;
 }
 
-export function PostItem({ postid, title, link, username, fullName }: PostItemProps) {
+export function PostItem({ postid, title, link, username, displayName }: PostItemProps) {
   const { isLoading, isError, data } = useQuery<PreviewProps, Error>({
     queryKey: ["preview", link],
     queryFn: async () => {
@@ -28,7 +28,7 @@ export function PostItem({ postid, title, link, username, fullName }: PostItemPr
       title={title}
       link={link}
       username={username}
-      fullName={fullName}
+      displayName={displayName}
       preview={data}
       isPreviewLoading={isLoading}
       isPreviewError={isError}

@@ -15,7 +15,9 @@ import KeyvRedis from '@keyv/redis';
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: () => ({
-        stores: [new KeyvRedis(process.env.REDIS_URL ?? 'redis://localhost:6379')],
+        stores: [
+          new KeyvRedis(process.env.REDIS_URL ?? 'redis://localhost:6379'),
+        ],
       }),
     }),
     TypeOrmModule.forRoot({

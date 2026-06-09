@@ -12,8 +12,7 @@ import { AuthPageHeader } from "~/components/auth-page-header";
 import type { Route } from "./+types/register";
 
 interface RegisterInput {
-  firstName: string;
-  lastName: string;
+  displayName: string;
   email: string;
   username: string;
   password: string;
@@ -48,8 +47,7 @@ export default function Register() {
     setError(null);
     try {
       const res = await apiClient.post("/api/auth/register", {
-        firstName: data.firstName,
-        lastName: data.lastName,
+        displayName: data.displayName,
         email: data.email,
         username: data.username,
         password: data.password,
@@ -85,33 +83,18 @@ export default function Register() {
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-2.5"
       >
-        <div className="grid grid-cols-2 gap-2.5">
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="firstName">First name</Label>
-            <Input
-              id="firstName"
-              autoComplete="given-name"
-              {...register("firstName", { required: "Required" })}
-            />
-            {errors.firstName && (
-              <p className="text-xs text-destructive">
-                {errors.firstName.message}
-              </p>
-            )}
-          </div>
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="lastName">Last name</Label>
-            <Input
-              id="lastName"
-              autoComplete="family-name"
-              {...register("lastName", { required: "Required" })}
-            />
-            {errors.lastName && (
-              <p className="text-xs text-destructive">
-                {errors.lastName.message}
-              </p>
-            )}
-          </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="displayName">Name</Label>
+          <Input
+            id="displayName"
+            autoComplete="name"
+            {...register("displayName", { required: "Required" })}
+          />
+          {errors.displayName && (
+            <p className="text-xs text-destructive">
+              {errors.displayName.message}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1">

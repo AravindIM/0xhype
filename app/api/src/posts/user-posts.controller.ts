@@ -35,7 +35,7 @@ export class UserPostsController {
       link: p.link,
       date: p.date,
       username: p.user.username,
-      fullName: `${p.user.firstName} ${p.user.lastName}`,
+      displayName: p.user.displayName,
     }));
   }
 
@@ -45,14 +45,15 @@ export class UserPostsController {
     @Param('postid', ParseIntPipe) postid: number,
   ) {
     const post = await this.postsService.findWithUser(postid);
-    if (!post || post.user.username !== username) throw new NotFoundException('Post not found');
+    if (!post || post.user.username !== username)
+      throw new NotFoundException('Post not found');
     return {
       postid: post.postid,
       title: post.title,
       link: post.link,
       date: post.date,
       username: post.user.username,
-      fullName: `${post.user.firstName} ${post.user.lastName}`,
+      displayName: post.user.displayName,
     };
   }
 
@@ -62,7 +63,8 @@ export class UserPostsController {
     @Param('postid', ParseIntPipe) postid: number,
   ): Promise<LinkPreviewDto | null> {
     const post = await this.postsService.findWithUser(postid);
-    if (!post || post.user.username !== username) throw new NotFoundException('Post not found');
+    if (!post || post.user.username !== username)
+      throw new NotFoundException('Post not found');
     try {
       const preview = await this.postsService.genLinkPreview(post.link);
       return preview ?? null;
