@@ -55,7 +55,13 @@ export function Post({
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-1.5 text-xs">
             <span className="font-medium">{fullName}</span>
-            <span className="text-muted-foreground">@{username}</span>
+            <Link
+              to={`/profile/${username}`}
+              className="text-muted-foreground hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              @{username}
+            </Link>
           </div>
         </div>
       </CardFooter>
