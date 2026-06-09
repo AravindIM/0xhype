@@ -27,6 +27,21 @@ export class User {
   @Column()
   passwordHash: string;
 
+  @Column({ type: 'text', nullable: true, default: null })
+  bio: string | null;
+
+  @Column({ type: 'varchar', nullable: true, default: null })
+  location: string | null;
+
+  @Column({ type: 'varchar', nullable: true, default: null })
+  website: string | null;
+
+  @Column({ type: 'text', nullable: true, default: null })
+  avatarUrl: string | null;
+
+  @Column({ type: 'text', nullable: true, default: null })
+  bannerUrl: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 
