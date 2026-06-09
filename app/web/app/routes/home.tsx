@@ -66,7 +66,7 @@ export default function Home() {
 
   const createPostMutation = useMutation({
     mutationFn: async (data: CreatePostInput) => {
-      await apiClient.post("/api/posts", data);
+      await apiClient.post(`/api/${user!.username}/posts`, data);
     },
     onSuccess: () => {
       reset();

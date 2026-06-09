@@ -91,7 +91,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
                 asChild
                 className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit"
               >
-                <Link to={`/profile/${user.username}`}>
+                <Link to={`/${user.username}`}>
                   <span>Profile</span>
                 </Link>
               </SidebarMenuButton>
