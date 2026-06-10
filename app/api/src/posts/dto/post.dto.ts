@@ -4,5 +4,5 @@ export class PostDto {
   link: string;
   date: Date;
   username: string;
-  fullName: string;
+  displayName: string;
 }

@@ -11,7 +11,7 @@ import Logo from "@/assets/logo.svg?react";
 import type React from "react";
 import { useAuth } from "~/context/auth-context";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 interface NavItem {
   title: string;
@@ -43,13 +43,15 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
   };
 
   const initials = user
-    ? user.fullName
+    ? user.displayName
         .split(" ")
         .map((n) => n[0])
         .join("")
         .toUpperCase()
         .slice(0, 2)
     : "";
+
+  const avatarUrl = user?.avatarUrl ?? null;
 
   return (
     <Sidebar {...props}>
@@ -60,9 +62,9 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
               asChild
               className="data-[slot=sidebar-menu-button]:p-3! rounded-full text-xl text-bold w-fit h-fit"
             >
-              <a href="#">
+              <Link to="/">
                 <Logo className="size-10! text-primary" />
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -76,12 +78,25 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
                 asChild
                 className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit"
               >
-                <a href={item.url}>
+                <Link to={item.url}>
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+
+          {!isAuthLoading && user && (
+            <SidebarMenuItem key="profile">
+              <SidebarMenuButton
+                asChild
+                className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit"
+              >
+                <Link to={`/${user.username}`}>
+                  <span>Profile</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
 
           <SidebarMenuItem key="post-button" className="hidden md:flex">
             <SidebarMenuButton
@@ -106,14 +121,22 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
         </SidebarFooter>
       )}
 
-      {user && (
+      {!isAuthLoading && user && (
         <SidebarFooter className="px-7 pb-6 md:w-75 md:ml-auto">
           <div className="flex items-center gap-3 py-5">
-            <div className="flex items-center justify-center size-10 rounded-full bg-primary text-primary-foreground font-semibold text-sm shrink-0">
-              {initials}
-            </div>
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={user?.displayName}
+                className="size-10 rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <div className="flex items-center justify-center size-10 rounded-full bg-primary text-primary-foreground font-semibold text-sm shrink-0">
+                {initials}
+              </div>
+            )}
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-sm font-semibold truncate">{user.fullName}</span>
+              <span className="text-sm font-semibold truncate">{user.displayName}</span>
               <span className="text-xs text-muted-foreground truncate">@{user.username}</span>
             </div>
             <Button

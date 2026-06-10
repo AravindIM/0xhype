@@ -9,7 +9,8 @@ import { apiClient } from '~/lib/axios';
 
 interface AuthUser {
   username: string;
-  fullName: string;
+  displayName: string;
+  avatarUrl?: string | null;
 }
 
 interface AuthContextValue {

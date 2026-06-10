@@ -9,14 +9,14 @@ export interface PostItemProps extends React.ComponentProps<"div"> {
   title: string;
   link: string;
   username: string;
-  fullName: string;
+  displayName: string;
 }
 
-export function PostItem({ postid, title, link, username, fullName }: PostItemProps) {
+export function PostItem({ postid, title, link, username, displayName }: PostItemProps) {
   const { isLoading, isError, data } = useQuery<PreviewProps, Error>({
     queryKey: ["preview", link],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/api/posts/${postid}/preview`);
+      const { data } = await apiClient.get(`/api/${username}/posts/${postid}/preview`);
       return data;
     },
     refetchOnWindowFocus: false,
@@ -24,10 +24,11 @@ export function PostItem({ postid, title, link, username, fullName }: PostItemPr
 
   return (
     <Post
+      postid={postid}
       title={title}
       link={link}
       username={username}
-      fullName={fullName}
+      displayName={displayName}
       preview={data}
       isPreviewLoading={isLoading}
       isPreviewError={isError}

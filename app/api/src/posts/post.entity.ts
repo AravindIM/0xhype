@@ -15,6 +15,9 @@ export class Post {
   @Column({ default: new Date() })
   date: Date;
 
-  @ManyToOne(() => User, (user) => user.posts, { nullable: false, eager: false })
+  @ManyToOne(() => User, (user) => user.posts, {
+    nullable: false,
+    eager: false,
+  })
   user: User;
 }
