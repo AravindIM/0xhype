@@ -25,6 +25,19 @@ interface EditProfileModalProps {
   profile: PublicProfile;
 }
 
+const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
+const MAX_BANNER_SIZE = 10 * 1024 * 1024;
+
+function validateImage(file: File, maxSize: number): string | null {
+  if (!file.type.startsWith("image/")) return "Please select an image file";
+  if (file.size > maxSize) return `Image must be under ${maxSize / (1024 * 1024)}MB`;
+  return null;
+}
+
+function revokeIfBlob(url: string | null) {
+  if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+}
+
 export function EditProfileModal({
   open,
   onOpenChange,
@@ -40,6 +53,10 @@ export function EditProfileModal({
   const [website, setWebsite] = useState(profile.website ?? "");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatarUrl);
   const [bannerPreview, setBannerPreview] = useState<string | null>(profile.bannerUrl);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [bannerError, setBannerError] = useState<string | null>(null);
 
   const initials = (name || profile.displayName)
     .split(" ")
@@ -49,41 +66,51 @@ export function EditProfileModal({
     .toUpperCase()
     .slice(0, 2);
 
-  const avatarMutation = useMutation({
-    mutationFn: async (file: File) => {
-      const form = new FormData();
-      form.append("avatar", file);
-      const { data } = await apiClient.post("/api/users/me/avatar", form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      return data.avatarUrl as string;
-    },
-    onSuccess: (url) => setAvatarPreview(url),
-  });
-
-  const bannerMutation = useMutation({
-    mutationFn: async (file: File) => {
-      const { bannerUrl } = await uploadBanner(file);
-      return bannerUrl;
-    },
-    onSuccess: (url) => setBannerPreview(url),
-  });
-
-  const clearBannerMutation = useMutation({
-    mutationFn: () => apiClient.delete("/api/users/me/banner"),
-    onSuccess: () => setBannerPreview(null),
-  });
-
   const profileMutation = useMutation({
     mutationFn: async () => {
+      let newAvatarUrl: string | undefined;
+      let newBannerUrl: string | undefined;
+
+      if (avatarFile) {
+        const form = new FormData();
+        form.append("avatar", avatarFile);
+        const { data } = await apiClient.post("/api/users/me/avatar", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        newAvatarUrl = data.avatarUrl as string;
+      }
+
+      if (bannerFile) {
+        const { bannerUrl } = await uploadBanner(bannerFile);
+        newBannerUrl = bannerUrl;
+      } else if (bannerPreview === null && profile.bannerUrl !== null) {
+        await apiClient.delete("/api/users/me/banner");
+      }
+
       await apiClient.patch("/api/users/me", {
         displayName: name.trim() || undefined,
         bio: bio.trim() || undefined,
         location: location.trim() || undefined,
         website: website.trim() || undefined,
       });
+
+      return { newAvatarUrl, newBannerUrl };
     },
-    onSuccess: () => {
+    onSuccess: ({ newAvatarUrl, newBannerUrl }) => {
+      if (newAvatarUrl) {
+        setAvatarPreview((prev) => {
+          revokeIfBlob(prev);
+          return newAvatarUrl;
+        });
+        setAvatarFile(null);
+      }
+      if (newBannerUrl) {
+        setBannerPreview((prev) => {
+          revokeIfBlob(prev);
+          return newBannerUrl;
+        });
+        setBannerFile(null);
+      }
       queryClient.invalidateQueries({ queryKey: ["profile", profile.username] });
       onOpenChange(false);
     },
@@ -130,13 +157,8 @@ export function EditProfileModal({
                     type="button"
                     onClick={() => bannerInputRef.current?.click()}
                     className="rounded-full bg-black/60 p-2.5 text-white hover:bg-black/80 transition-colors"
-                    disabled={bannerMutation.isPending}
                   >
-                    {bannerMutation.isPending ? (
-                      <div className="size-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Camera className="size-5" />
-                    )}
+                    <Camera className="size-5" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">Add photo</TooltipContent>
@@ -147,15 +169,17 @@ export function EditProfileModal({
                   <TooltipTrigger asChild>
                     <button
                       type="button"
-                      onClick={() => clearBannerMutation.mutate()}
+                      onClick={() => {
+                        setBannerPreview((prev) => {
+                          revokeIfBlob(prev);
+                          return null;
+                        });
+                        setBannerFile(null);
+                        setBannerError(null);
+                      }}
                       className="rounded-full bg-black/60 p-2.5 text-white hover:bg-black/80 transition-colors"
-                      disabled={clearBannerMutation.isPending}
                     >
-                      {clearBannerMutation.isPending ? (
-                        <div className="size-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <X className="size-5" />
-                      )}
+                      <X className="size-5" />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">Remove photo</TooltipContent>
@@ -170,7 +194,18 @@ export function EditProfileModal({
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) bannerMutation.mutate(file);
+                if (!file) return;
+                const error = validateImage(file, MAX_BANNER_SIZE);
+                if (error) {
+                  setBannerError(error);
+                } else {
+                  setBannerError(null);
+                  setBannerFile(file);
+                  setBannerPreview((prev) => {
+                    revokeIfBlob(prev);
+                    return URL.createObjectURL(file);
+                  });
+                }
                 e.target.value = "";
               }}
             />
@@ -200,13 +235,8 @@ export function EditProfileModal({
                         type="button"
                         onClick={() => avatarInputRef.current?.click()}
                         className="rounded-full bg-black/60 p-2 text-white hover:bg-black/80 transition-colors"
-                        disabled={avatarMutation.isPending}
                       >
-                        {avatarMutation.isPending ? (
-                          <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <Camera className="size-4" />
-                        )}
+                        <Camera className="size-4" />
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">Add photo</TooltipContent>
@@ -221,7 +251,18 @@ export function EditProfileModal({
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) avatarMutation.mutate(file);
+                  if (!file) return;
+                  const error = validateImage(file, MAX_AVATAR_SIZE);
+                  if (error) {
+                    setAvatarError(error);
+                  } else {
+                    setAvatarError(null);
+                    setAvatarFile(file);
+                    setAvatarPreview((prev) => {
+                      revokeIfBlob(prev);
+                      return URL.createObjectURL(file);
+                    });
+                  }
                   e.target.value = "";
                 }}
               />
@@ -230,6 +271,13 @@ export function EditProfileModal({
 
           {/* Form fields */}
           <div className="flex flex-col gap-4 px-4 pt-2 pb-6">
+            {(bannerError || avatarError) && (
+              <div className="flex flex-col gap-1">
+                {bannerError && <p className="text-xs text-destructive">{bannerError}</p>}
+                {avatarError && <p className="text-xs text-destructive">{avatarError}</p>}
+              </div>
+            )}
+
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="name">Name</Label>
               <Input
