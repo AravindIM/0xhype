@@ -3,6 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostsModule } from './posts/posts.module';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { UserPostsModule } from './posts/user-posts.module';
+import { UserProfileModule } from './users/user-profile.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis from '@keyv/redis';
@@ -12,7 +15,9 @@ import KeyvRedis from '@keyv/redis';
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: () => ({
-        stores: [new KeyvRedis(process.env.REDIS_URL ?? 'redis://localhost:6379')],
+        stores: [
+          new KeyvRedis(process.env.REDIS_URL ?? 'redis://localhost:6379'),
+        ],
       }),
     }),
     TypeOrmModule.forRoot({
@@ -25,8 +30,13 @@ import KeyvRedis from '@keyv/redis';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    // Literal-prefix modules first — they win over wildcard controllers
     PostsModule,
     AuthModule,
+    UsersModule,
+    // Wildcard modules last — :username/posts before :username
+    UserPostsModule,
+    UserProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
