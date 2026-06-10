@@ -118,7 +118,10 @@ export function EditProfileModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg p-0 overflow-hidden gap-0" showCloseButton={false}>
+      <DialogContent
+        className="flex flex-col top-0 left-0 translate-x-0 translate-y-0 max-w-none w-full h-dvh rounded-none border-0 p-0 overflow-hidden gap-0 sm:top-[50%] sm:left-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:h-[85vh] sm:rounded-lg sm:border"
+        showCloseButton={false}
+      >
 
         {/* Header row: X | title | Save */}
         <div className="flex items-center gap-2 px-3 h-14 shrink-0 border-b">
@@ -139,7 +142,7 @@ export function EditProfileModal({
         </div>
 
         {/* Scrollable body */}
-        <div className="overflow-y-auto max-h-[calc(100svh-8rem)]">
+        <div className="flex-1 overflow-y-auto min-h-0">
 
           {/* Banner */}
           <div className="relative h-32 shrink-0">
