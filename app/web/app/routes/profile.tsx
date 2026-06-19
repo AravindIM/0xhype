@@ -160,8 +160,8 @@ export default function Profile() {
           )}
 
           <div>
-            {/* Avatar + Edit button row — absolutely positioned around banner bottom */}
-            <div className="relative h-10">
+            {/* Avatar overlaps banner; Edit button sits below the banner, right-aligned */}
+            <div className="relative flex justify-end px-4 pt-3 min-h-12">
               <div className="absolute -top-10 left-4">
                 {profileLoading ? (
                   <Skeleton className="size-20 rounded-full" />
@@ -179,15 +179,13 @@ export default function Profile() {
               </div>
 
               {isOwnProfile && profile && (
-                <div className="absolute -top-11 right-4">
-                  <Button
-                    variant="outline"
-                    className="rounded-full px-5"
-                    onClick={() => setEditOpen(true)}
-                  >
-                    Edit profile
-                  </Button>
-                </div>
+                <Button
+                  variant="outline"
+                  className="rounded-full px-5"
+                  onClick={() => setEditOpen(true)}
+                >
+                  Edit profile
+                </Button>
               )}
             </div>
 
