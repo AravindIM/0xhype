@@ -47,13 +47,6 @@ services:
     environment:
       NODE_ENV: development
       DOCKER_ENV: 'true'
-    volumes:
-      - ./app/web/app:/app/app:ro
-      - ./app/web/package.json:/app/package.json:ro
-      - ./app/web/tsconfig.json:/app/tsconfig.json:ro
-      - ./app/web/components.json:/app/components.json:ro
-      - ./app/web/vite.config.ts:/app/vite.config.ts:ro
-      - ./app/web/public:/app/public:ro
     develop:
       watch:
         - action: sync
@@ -107,14 +100,6 @@ services:
       MINIO_SECRET_KEY: '${MINIO_SECRET_KEY:-minioadmin}'
       MINIO_BUCKET: '${MINIO_BUCKET:-avatars}'
       MINIO_PUBLIC_URL: '${MINIO_PUBLIC_URL:-http://localhost:9000}'
-    volumes:
-      - ./app/api/src:/app/src:ro
-      - ./app/api/test:/app/test:ro
-      - ./app/api/package.json:/app/package.json:ro
-      - ./app/api/package-lock.json:/app/package-lock.json:ro
-      - ./app/api/nest-cli.json:/app/nest-cli.json:ro
-      - ./app/api/tsconfig.json:/app/tsconfig.json:ro
-      - ./app/api/tsconfig.build.json:/app/tsconfig.build.json:ro
     develop:
       watch:
         - action: sync
