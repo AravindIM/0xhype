@@ -11,6 +11,7 @@ import Logo from "@/assets/logo.svg?react";
 import type React from "react";
 import { useAuth } from "~/context/auth-context";
 import { Button } from "@/components/ui/button";
+import { NavUser } from "@/components/nav-user";
 import { Link, useNavigate } from "react-router";
 
 interface NavItem {
@@ -30,7 +31,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
-  const { user, isLoading: isAuthLoading, logout } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
 
   const handlePostClick = () => {
@@ -41,17 +42,6 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
       navigate("/login");
     }
   };
-
-  const initials = user
-    ? user.displayName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    : "";
-
-  const avatarUrl = user?.avatarUrl ?? null;
 
   return (
     <Sidebar {...props}>
@@ -123,31 +113,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
 
       {!isAuthLoading && user && (
         <SidebarFooter className="px-7 pb-6 md:w-75 md:ml-auto">
-          <div className="flex items-center gap-3 py-5">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={user?.displayName}
-                className="size-10 rounded-full object-cover shrink-0"
-              />
-            ) : (
-              <div className="flex items-center justify-center size-10 rounded-full bg-primary text-primary-foreground font-semibold text-sm shrink-0">
-                {initials}
-              </div>
-            )}
-            <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-sm font-semibold truncate">{user.displayName}</span>
-              <span className="text-xs text-muted-foreground truncate">@{user.username}</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => logout()}
-              className="shrink-0 text-muted-foreground hover:text-foreground"
-            >
-              Sign out
-            </Button>
-          </div>
+          <NavUser />
         </SidebarFooter>
       )}
     </Sidebar>
