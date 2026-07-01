@@ -5,6 +5,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '~/lib/axios';
 
 interface AuthUser {
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     apiClient
@@ -37,8 +39,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (authUser: AuthUser) => setUser(authUser);
 
   const logout = async () => {
-    await apiClient.post('/api/auth/logout');
-    setUser(null);
+    try {
+      await apiClient.post('/api/auth/logout');
+    } finally {
+      queryClient.clear();
+      window.location.href = '/';
+    }
   };
 
   return (
