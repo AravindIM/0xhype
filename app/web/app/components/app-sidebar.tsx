@@ -13,16 +13,19 @@ import { useAuth } from "~/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { NavUser } from "@/components/nav-user";
 import { Link, useNavigate } from "react-router";
+import { GoHomeFill, GoPersonFill } from "react-icons/go";
 
 interface NavItem {
   title: string;
   url: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 const navItems: NavItem[] = [
   {
     title: "Home",
     url: "/",
+    icon: GoHomeFill,
   },
 ];
 
@@ -66,9 +69,10 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
-                className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit"
+                className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit gap-4"
               >
                 <Link to={item.url}>
+                  <item.icon className="!size-[1.5em] shrink-0" />
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>
@@ -79,9 +83,10 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
             <SidebarMenuItem key="profile">
               <SidebarMenuButton
                 asChild
-                className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit"
+                className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit gap-4"
               >
                 <Link to={`/${user.username}`}>
+                  <GoPersonFill className="!size-[1.5em] shrink-0" />
                   <span>Profile</span>
                 </Link>
               </SidebarMenuButton>
