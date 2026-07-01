@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import type { Route } from "./+types/profile";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/app-sidebar";
 import { PostList } from "~/components/post-list";
 import { LoadingPosts } from "~/components/loading-posts";
@@ -96,9 +96,6 @@ export default function Profile() {
               >
                 <ArrowLeft className="size-5" />
               </Button>
-              <div className="md:hidden shrink-0 ml-auto">
-                <SidebarTrigger />
-              </div>
             </div>
           </header>
           <div className="flex flex-col items-center justify-center py-32 gap-3 text-muted-foreground">
@@ -142,9 +139,6 @@ export default function Profile() {
                     </p>
                   </>
                 ) : null}
-              </div>
-              <div className="md:hidden shrink-0">
-                <SidebarTrigger />
               </div>
             </div>
           </header>
