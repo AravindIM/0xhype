@@ -99,7 +99,7 @@ export default function Home() {
           }}
         />
         <SidebarInset>
-          <NavBar />
+          <NavBar user={!isAuthLoading && user ? user : null} />
           <div className="flex flex-col justify-center">
             {user && (
               <div ref={createPostRef}>
