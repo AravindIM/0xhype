@@ -141,13 +141,13 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
         )}
       </SidebarHeader>
 
-      <SidebarContent className="px-7 py-0 md:w-75 md:ml-auto">
+      <SidebarContent className="px-0 md:px-7 py-0 md:w-75 md:ml-auto">
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
-                className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit gap-4"
+                className="py-7 px-14 md:px-7 rounded-none md:rounded-full text-xl font-semi-bold w-full md:w-fit gap-4"
               >
                 <Link to={item.url}>
                   <item.icon className="!size-[1.5em] shrink-0" />
@@ -161,7 +161,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
             <SidebarMenuItem key="profile">
               <SidebarMenuButton
                 asChild
-                className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit gap-4"
+                className="py-7 px-14 md:px-7 rounded-none md:rounded-full text-xl font-semi-bold w-full md:w-fit gap-4"
               >
                 <Link to={`/${user.username}`}>
                   <GoPersonFill className="!size-[1.5em] shrink-0" />
