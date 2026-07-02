@@ -18,6 +18,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   login: (user: AuthUser) => void;
+  updateUser: (partial: Partial<AuthUser>) => void;
   logout: () => Promise<void>;
 }
 
@@ -38,6 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (authUser: AuthUser) => setUser(authUser);
 
+  const updateUser = (partial: Partial<AuthUser>) =>
+    setUser((prev) => (prev ? { ...prev, ...partial } : prev));
+
   const logout = async () => {
     try {
       await apiClient.post('/api/auth/logout');
@@ -48,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
