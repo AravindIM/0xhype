@@ -41,7 +41,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
   const { user, isLoading: isAuthLoading, logout } = useAuth();
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
   const [logoutOpen, setLogoutOpen] = useState(false);
 
@@ -69,8 +69,13 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
     }
   };
 
+  const closeMobileSidebar = () => {
+    if (isMobile) setOpenMobile(false);
+  };
+
   return (
-    <Sidebar {...props}>
+    <>
+      <Sidebar {...props}>
       <SidebarHeader className="p-0 md:px-8 md:py-0 md:w-75 md:ml-auto">
         {isMobile ? (
           <div className="relative overflow-hidden">
@@ -87,7 +92,11 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
             <div className="relative flex flex-col gap-2 pl-8 pr-6 pb-8 pt-10 text-primary-foreground">
               {user ? (
                 <>
-                  <Link to={`/${user.username}`} className="w-fit">
+                  <Link
+                    to={`/${user.username}`}
+                    className="w-fit"
+                    onClick={closeMobileSidebar}
+                  >
                     <Avatar className="size-14 ring-2 ring-background">
                       <AvatarImage
                         src={user.avatarUrl ?? undefined}
@@ -99,6 +108,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
                   <Link
                     to={`/${user.username}`}
                     className="grid w-fit leading-tight"
+                    onClick={closeMobileSidebar}
                   >
                     <span className="truncate text-lg font-bold">
                       {user.displayName}
@@ -110,13 +120,17 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
                 </>
               ) : (
                 <>
-                  <Link to="/" className="w-fit">
+                  <Link to="/" className="w-fit" onClick={closeMobileSidebar}>
                     <div className="flex size-14 items-center justify-center rounded-full bg-primary ring-2 ring-background">
                       <Logo className="size-8 text-primary-foreground" />
                     </div>
                   </Link>
                   <div className="grid leading-tight">
-                    <Link to="/" className="w-fit">
+                    <Link
+                      to="/"
+                      className="w-fit"
+                      onClick={closeMobileSidebar}
+                    >
                       <span className="truncate text-lg font-bold">0xhype</span>
                     </Link>
                     <span className="text-sm">&nbsp;</span>
@@ -149,7 +163,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
                 asChild
                 className="py-7 px-14 md:px-7 rounded-none md:rounded-full text-xl font-semi-bold w-full md:w-fit gap-4"
               >
-                <Link to={item.url}>
+                <Link to={item.url} onClick={closeMobileSidebar}>
                   <item.icon className="!size-[1.5em] shrink-0" />
                   <span>{item.title}</span>
                 </Link>
@@ -163,7 +177,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
                 asChild
                 className="py-7 px-14 md:px-7 rounded-none md:rounded-full text-xl font-semi-bold w-full md:w-fit gap-4"
               >
-                <Link to={`/${user.username}`}>
+                <Link to={`/${user.username}`} onClick={closeMobileSidebar}>
                   <GoPersonFill className="!size-[1.5em] shrink-0" />
                   <span>Profile</span>
                 </Link>
@@ -186,7 +200,10 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
         <SidebarFooter className="px-7 pb-6 md:w-75 md:ml-auto">
           <Button
             variant="outline"
-            onClick={() => navigate("/login")}
+            onClick={() => {
+              closeMobileSidebar();
+              navigate("/login");
+            }}
             className="w-full rounded-full py-7 text-xl"
           >
             Sign in
@@ -201,18 +218,25 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
           </div>
           <Button
             variant="outline"
-            onClick={() => setLogoutOpen(true)}
+            onClick={() => {
+              closeMobileSidebar();
+              setLogoutOpen(true);
+            }}
             className="flex md:hidden w-full rounded-full py-7 text-xl"
           >
             Log out
           </Button>
-          <LogoutConfirmDialog
-            open={logoutOpen}
-            onConfirm={logout}
-            onCancel={() => setLogoutOpen(false)}
-          />
         </SidebarFooter>
       )}
     </Sidebar>
+
+      {!isAuthLoading && user && (
+        <LogoutConfirmDialog
+          open={logoutOpen}
+          onConfirm={logout}
+          onCancel={() => setLogoutOpen(false)}
+        />
+      )}
+    </>
   );
 }
