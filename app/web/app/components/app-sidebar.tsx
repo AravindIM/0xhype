@@ -74,22 +74,17 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
       <SidebarHeader className="p-0 md:px-8 md:py-0 md:w-75 md:ml-auto">
         {isMobile ? (
           <div className="relative overflow-hidden">
-            {/* Banner background (non-interactive) */}
             <div
-              className="pointer-events-none absolute inset-0 scale-110 bg-linear-to-br from-primary/25 to-muted bg-cover bg-center blur-sm"
+              className="pointer-events-none absolute inset-0 scale-110 bg-linear-to-br from-primary/25 to-muted bg-cover bg-center"
               style={
                 user && profile?.bannerUrl
                   ? { backgroundImage: `url(${profile.bannerUrl})` }
                   : undefined
               }
             />
-            {/* Primary color shade over the blurred banner */}
-            <div className="pointer-events-none absolute inset-0 bg-primary/30 mix-blend-multiply" />
-            {/* Scrim for legibility */}
-            <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-sidebar/80 via-sidebar/40 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-primary/70 backdrop-blur-[2px]" />
 
-            {/* Foreground */}
-            <div className="relative flex flex-col gap-2 pl-8 pr-6 pb-8 pt-10">
+            <div className="relative flex flex-col gap-2 pl-8 pr-6 pb-8 pt-10 text-primary-foreground">
               {user ? (
                 <>
                   <Link to={`/${user.username}`} className="w-fit">
@@ -108,7 +103,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
                     <span className="truncate text-lg font-bold">
                       {user.displayName}
                     </span>
-                    <span className="truncate text-sm text-muted-foreground">
+                    <span className="truncate text-sm text-primary-foreground/70">
                       @{user.username}
                     </span>
                   </Link>
