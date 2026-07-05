@@ -66,14 +66,6 @@ export class UsersService {
     await this.userRepository.update(userId, { bannerUrl: null });
   }
 
-  async getUserPosts(userId: number): Promise<Post[]> {
-    return this.postRepository.find({
-      where: { user: { id: userId } },
-      relations: ['user'],
-      order: { date: 'DESC' },
-    });
-  }
-
   async create(dto: CreateUserDto): Promise<User> {
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const user = this.userRepository.create({

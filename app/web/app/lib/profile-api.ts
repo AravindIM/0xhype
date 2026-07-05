@@ -16,8 +16,18 @@ export interface PublicProfile {
 export const fetchProfile = (username: string): Promise<PublicProfile> =>
   apiClient.get(`/api/${username}`).then((r) => r.data);
 
-export const fetchUserPosts = (username: string): Promise<PostItemProps[]> =>
-  apiClient.get(`/api/${username}/posts`).then((r) => r.data);
+export interface UserPostsPage {
+  items: PostItemProps[];
+  nextCursor: number | null;
+}
+
+export const fetchUserPosts = (
+  username: string,
+  cursor?: number
+): Promise<UserPostsPage> =>
+  apiClient
+    .get(`/api/${username}/posts`, { params: { cursor, limit: 20 } })
+    .then((r) => r.data);
 
 export const uploadBanner = (file: File): Promise<{ bannerUrl: string }> => {
   const form = new FormData();
