@@ -27,5 +27,5 @@ WORKDIR /app
 ENV NODE_ENV=development
 COPY package.json package-lock.json ./
 COPY --from=dev-deps /app/node_modules ./node_modules
-RUN npm ci
+COPY . .
 CMD ["npm", "run", "dev"]

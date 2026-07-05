@@ -18,6 +18,7 @@ import { Camera, X } from "lucide-react";
 import { apiClient } from "~/lib/axios";
 import { uploadBanner } from "~/lib/profile-api";
 import type { PublicProfile } from "~/lib/profile-api";
+import { useAuth } from "~/context/auth-context";
 
 interface EditProfileModalProps {
   open: boolean;
@@ -44,6 +45,7 @@ export function EditProfileModal({
   profile,
 }: EditProfileModalProps) {
   const queryClient = useQueryClient();
+  const { updateUser } = useAuth();
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
@@ -87,16 +89,16 @@ export function EditProfileModal({
         await apiClient.delete("/api/users/me/banner");
       }
 
-      await apiClient.patch("/api/users/me", {
+      const { data: updatedUser } = await apiClient.patch("/api/users/me", {
         displayName: name.trim() || undefined,
         bio: bio.trim() || undefined,
         location: location.trim() || undefined,
         website: website.trim() || undefined,
       });
 
-      return { newAvatarUrl, newBannerUrl };
+      return { updatedUser, newAvatarUrl, newBannerUrl };
     },
-    onSuccess: ({ newAvatarUrl, newBannerUrl }) => {
+    onSuccess: ({ updatedUser, newAvatarUrl, newBannerUrl }) => {
       if (newAvatarUrl) {
         setAvatarPreview((prev) => {
           revokeIfBlob(prev);
@@ -112,6 +114,10 @@ export function EditProfileModal({
         setBannerFile(null);
       }
       queryClient.invalidateQueries({ queryKey: ["profile", profile.username] });
+      updateUser({
+        displayName: updatedUser.displayName,
+        avatarUrl: updatedUser.avatarUrl,
+      });
       onOpenChange(false);
     },
   });

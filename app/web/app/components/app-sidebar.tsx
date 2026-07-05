@@ -6,22 +6,32 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Logo from "@/assets/logo.svg?react";
 import type React from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "~/context/auth-context";
+import { fetchProfile } from "~/lib/profile-api";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { NavUser } from "@/components/nav-user";
+import { LogoutConfirmDialog } from "@/components/logout-confirm-dialog";
 import { Link, useNavigate } from "react-router";
+import { GoHomeFill, GoPersonFill } from "react-icons/go";
 
 interface NavItem {
   title: string;
   url: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 const navItems: NavItem[] = [
   {
     title: "Home",
     url: "/",
+    icon: GoHomeFill,
   },
 ];
 
@@ -31,16 +41,15 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
   const { user, isLoading: isAuthLoading, logout } = useAuth();
+  const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
+  const [logoutOpen, setLogoutOpen] = useState(false);
 
-  const handlePostClick = () => {
-    if (isAuthLoading) return;
-    if (user) {
-      onPostClick?.();
-    } else {
-      navigate("/login");
-    }
-  };
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.username],
+    queryFn: () => fetchProfile(user!.username),
+    enabled: isMobile && !!user,
+  });
 
   const initials = user
     ? user.displayName
@@ -51,34 +60,111 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
         .slice(0, 2)
     : "";
 
-  const avatarUrl = user?.avatarUrl ?? null;
+  const handlePostClick = () => {
+    if (isAuthLoading) return;
+    if (user) {
+      onPostClick?.();
+    } else {
+      navigate("/login");
+    }
+  };
+
+  const closeMobileSidebar = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   return (
-    <Sidebar {...props}>
-      <SidebarHeader className="px-8 py-0 md:w-75 md:ml-auto">
-        <SidebarMenu>
-          <SidebarMenuItem key="logo">
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:p-3! rounded-full text-xl text-bold w-fit h-fit"
-            >
-              <Link to="/">
-                <Logo className="size-10! text-primary" />
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+    <>
+      <Sidebar {...props}>
+      <SidebarHeader className="p-0 md:px-8 md:py-0 md:w-75 md:ml-auto">
+        {isMobile ? (
+          <div className="relative overflow-hidden">
+            <div
+              className="pointer-events-none absolute inset-0 scale-110 bg-linear-to-br from-primary/25 to-muted bg-cover bg-center"
+              style={
+                user && profile?.bannerUrl
+                  ? { backgroundImage: `url(${profile.bannerUrl})` }
+                  : undefined
+              }
+            />
+            <div className="pointer-events-none absolute inset-0 bg-primary/70 backdrop-blur-[2px]" />
+
+            <div className="relative flex flex-col gap-2 pl-8 pr-6 pb-8 pt-10 text-primary-foreground">
+              {user ? (
+                <>
+                  <Link
+                    to={`/${user.username}`}
+                    className="w-fit"
+                    onClick={closeMobileSidebar}
+                  >
+                    <Avatar className="size-14 ring-2 ring-background">
+                      <AvatarImage
+                        src={user.avatarUrl ?? undefined}
+                        alt={user.displayName}
+                      />
+                      <AvatarFallback>{initials}</AvatarFallback>
+                    </Avatar>
+                  </Link>
+                  <Link
+                    to={`/${user.username}`}
+                    className="grid w-fit leading-tight"
+                    onClick={closeMobileSidebar}
+                  >
+                    <span className="truncate text-lg font-bold">
+                      {user.displayName}
+                    </span>
+                    <span className="truncate text-sm text-primary-foreground/70">
+                      @{user.username}
+                    </span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/" className="w-fit" onClick={closeMobileSidebar}>
+                    <div className="flex size-14 items-center justify-center rounded-full bg-primary ring-2 ring-background">
+                      <Logo className="size-8 text-primary-foreground" />
+                    </div>
+                  </Link>
+                  <div className="grid leading-tight">
+                    <Link
+                      to="/"
+                      className="w-fit"
+                      onClick={closeMobileSidebar}
+                    >
+                      <span className="truncate text-lg font-bold">0xhype</span>
+                    </Link>
+                    <span className="text-sm">&nbsp;</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        ) : (
+          <SidebarMenu>
+            <SidebarMenuItem key="logo">
+              <SidebarMenuButton
+                asChild
+                className="data-[slot=sidebar-menu-button]:p-3! rounded-full text-xl text-bold w-fit h-fit"
+              >
+                <Link to="/">
+                  <Logo className="size-10! text-primary" />
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
       </SidebarHeader>
 
-      <SidebarContent className="px-7 py-0 md:w-75 md:ml-auto">
+      <SidebarContent className="px-0 md:px-7 py-0 md:w-75 md:ml-auto">
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild
-                className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit"
+                className="py-7 px-14 md:px-7 rounded-none md:rounded-full text-xl font-semi-bold w-full md:w-fit gap-4"
               >
-                <Link to={item.url}>
+                <Link to={item.url} onClick={closeMobileSidebar}>
+                  <item.icon className="!size-[1.5em] shrink-0" />
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>
@@ -89,9 +175,10 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
             <SidebarMenuItem key="profile">
               <SidebarMenuButton
                 asChild
-                className="p-7 rounded-full text-xl font-semi-bold w-full md:w-fit"
+                className="py-7 px-14 md:px-7 rounded-none md:rounded-full text-xl font-semi-bold w-full md:w-fit gap-4"
               >
-                <Link to={`/${user.username}`}>
+                <Link to={`/${user.username}`} onClick={closeMobileSidebar}>
+                  <GoPersonFill className="!size-[1.5em] shrink-0" />
                   <span>Profile</span>
                 </Link>
               </SidebarMenuButton>
@@ -113,7 +200,10 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
         <SidebarFooter className="px-7 pb-6 md:w-75 md:ml-auto">
           <Button
             variant="outline"
-            onClick={() => navigate("/login")}
+            onClick={() => {
+              closeMobileSidebar();
+              navigate("/login");
+            }}
             className="w-full rounded-full py-7 text-xl"
           >
             Sign in
@@ -123,33 +213,30 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
 
       {!isAuthLoading && user && (
         <SidebarFooter className="px-7 pb-6 md:w-75 md:ml-auto">
-          <div className="flex items-center gap-3 py-5">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={user?.displayName}
-                className="size-10 rounded-full object-cover shrink-0"
-              />
-            ) : (
-              <div className="flex items-center justify-center size-10 rounded-full bg-primary text-primary-foreground font-semibold text-sm shrink-0">
-                {initials}
-              </div>
-            )}
-            <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-sm font-semibold truncate">{user.displayName}</span>
-              <span className="text-xs text-muted-foreground truncate">@{user.username}</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => logout()}
-              className="shrink-0 text-muted-foreground hover:text-foreground"
-            >
-              Sign out
-            </Button>
+          <div className="hidden md:block">
+            <NavUser />
           </div>
+          <Button
+            variant="outline"
+            onClick={() => {
+              closeMobileSidebar();
+              setLogoutOpen(true);
+            }}
+            className="flex md:hidden w-full rounded-full py-7 text-xl"
+          >
+            Log out
+          </Button>
         </SidebarFooter>
       )}
     </Sidebar>
+
+      {!isAuthLoading && user && (
+        <LogoutConfirmDialog
+          open={logoutOpen}
+          onConfirm={logout}
+          onCancel={() => setLogoutOpen(false)}
+        />
+      )}
+    </>
   );
 }

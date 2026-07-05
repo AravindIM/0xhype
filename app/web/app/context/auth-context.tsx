@@ -5,6 +5,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '~/lib/axios';
 
 interface AuthUser {
@@ -17,6 +18,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   login: (user: AuthUser) => void;
+  updateUser: (partial: Partial<AuthUser>) => void;
   logout: () => Promise<void>;
 }
 
@@ -25,6 +27,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     apiClient
@@ -36,13 +39,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (authUser: AuthUser) => setUser(authUser);
 
+  const updateUser = (partial: Partial<AuthUser>) =>
+    setUser((prev) => (prev ? { ...prev, ...partial } : prev));
+
   const logout = async () => {
-    await apiClient.post('/api/auth/logout');
-    setUser(null);
+    try {
+      await apiClient.post('/api/auth/logout');
+    } finally {
+      queryClient.clear();
+      window.location.href = '/';
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
