@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { ChevronsUpDown } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -13,12 +12,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LogoutConfirmDialog } from "@/components/logout-confirm-dialog"
+import { useLogoutDialog } from "@/components/logout-dialog"
 import { useAuth } from "~/context/auth-context"
 
 export function NavUser() {
-  const { user, logout } = useAuth()
-  const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+  const { user } = useAuth()
+  const { open } = useLogoutDialog()
 
   if (!user) return null
 
@@ -58,7 +57,7 @@ export function NavUser() {
               className="rounded-none px-4 py-3"
               onSelect={(e) => {
                 e.preventDefault()
-                setShowLogoutDialog(true)
+                open()
               }}
             >
               Log out <span className="font-semibold">@{user.username}</span>
@@ -66,12 +65,6 @@ export function NavUser() {
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
-
-      <LogoutConfirmDialog
-        open={showLogoutDialog}
-        onConfirm={logout}
-        onCancel={() => setShowLogoutDialog(false)}
-      />
     </SidebarMenu>
   )
 }
