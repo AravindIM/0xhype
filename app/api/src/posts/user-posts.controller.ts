@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Body,
+  Query,
   UseGuards,
   Request,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { PostsService } from './posts.service';
 import { UsersService } from '../users/users.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { LinkPreviewDto } from './dto/link-preview.dto';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller(':username/posts')
@@ -25,18 +27,27 @@ export class UserPostsController {
   ) {}
 
   @Get()
-  async getUserPosts(@Param('username') username: string) {
+  async getUserPosts(
+    @Param('username') username: string,
+    @Query() query: PaginationQueryDto,
+  ) {
     const result = await this.usersService.findByUsername(username);
     if (!result) throw new NotFoundException('User not found');
-    const posts = await this.usersService.getUserPosts(result.user.id);
-    return posts.map((p) => ({
-      postid: p.postid,
-      title: p.title,
-      link: p.link,
-      date: p.date,
-      username: p.user.username,
-      displayName: p.user.displayName,
-    }));
+    const { items, nextCursor } = await this.postsService.findByUserId(
+      result.user.id,
+      query,
+    );
+    return {
+      items: items.map((p) => ({
+        postid: p.postid,
+        title: p.title,
+        link: p.link,
+        date: p.date,
+        username: p.user.username,
+        displayName: p.user.displayName,
+      })),
+      nextCursor,
+    };
   }
 
   @Get(':postid')

@@ -1,6 +1,10 @@
 import { useRef } from "react";
 import { useNavigate } from "react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import type { Route } from "./+types/home";
 import { NavBar } from "@/components/navbar";
 import {
@@ -10,7 +14,7 @@ import {
 import { AppSidebar } from "~/components/app-sidebar";
 import { CreatePost } from "~/components/create-post";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { PostList } from "~/components/post-list";
+import { PostFeed } from "~/components/post-feed";
 import { TrendingPanel } from "~/components/trending-panel";
 import { Toaster } from "@/components/ui/sonner";
 import { LoadingPosts } from "@/components/loading-posts";
@@ -23,6 +27,11 @@ import { Fab } from "~/components/fab";
 interface CreatePostInput {
   title: string;
   link: string;
+}
+
+interface PostsPage {
+  items: PostItemProps[];
+  nextCursor: number | null;
 }
 
 export function meta({}: Route.MetaArgs) {
@@ -42,16 +51,29 @@ export default function Home() {
   const navigate = useNavigate();
   const createPostRef = useRef<HTMLDivElement>(null);
 
-  const { isFetching, isError, data } = useQuery<PostItemProps[], Error>({
+  const {
+    isPending,
+    isError,
+    data,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery({
     queryKey: ["posts"],
-    queryFn: async () => {
-      const { data } = await apiClient.get("/api/posts");
-      return data as PostItemProps[];
+    queryFn: async ({ pageParam }) => {
+      const { data } = await apiClient.get("/api/posts", {
+        params: { cursor: pageParam, limit: 20 },
+      });
+      return data as PostsPage;
     },
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     retry: false,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });
+
+  const posts = data?.pages.flatMap((page) => page.items) ?? [];
 
   const {
     register,
@@ -112,18 +134,22 @@ export default function Home() {
                 />
               </div>
             )}
-            <PostList posts={data} />
             {isError ? (
               <PostFetchError onRetry={refetchPosts} />
-            ) : isFetching ? (
+            ) : isPending ? (
               <LoadingPosts />
-            ) : data?.length === 0 ? (
+            ) : posts.length === 0 ? (
               <div className="py-16 flex flex-col items-center gap-2 text-muted-foreground">
                 <p className="text-lg font-medium">No posts yet</p>
                 <p className="text-sm">Be the first to share something.</p>
               </div>
             ) : (
-              <></>
+              <PostFeed
+                posts={posts}
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                fetchNextPage={fetchNextPage}
+              />
             )}
           </div>
         </SidebarInset>
