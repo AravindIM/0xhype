@@ -1,13 +1,12 @@
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import type { Route } from "./+types/post";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/app-sidebar";
+import { NavBar } from "@/components/navbar";
 import { Post } from "~/components/post";
 import { Toaster } from "~/components/ui/sonner";
-import { Separator } from "~/components/ui/separator";
-import { Link } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { useAuth } from "~/context/auth-context";
 import { apiClient } from "~/lib/axios";
 import type { PreviewProps } from "~/components/preview/preview";
 import type { PostItemProps } from "~/components/post-item";
@@ -35,6 +34,7 @@ export function meta({ data }: Route.MetaArgs) {
 
 export default function PostDetail() {
   const { username, postid } = useParams<{ username: string; postid: string }>();
+  const { user, isLoading } = useAuth();
 
   const { isLoading: postLoading, isError: postError, data: post } = useQuery<PostItemProps>({
     queryKey: ["post", username, postid],
@@ -62,17 +62,11 @@ export default function PostDetail() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Link
-            to={`/${username}`}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            @{username}
-          </Link>
-        </header>
+        <NavBar
+          variant="post"
+          username={username!}
+          user={!isLoading && user ? user : null}
+        />
 
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0 max-w-2xl">
           {postLoading && (
