@@ -10,14 +10,13 @@ import {
 } from "@/components/ui/sidebar";
 import Logo from "@/assets/logo.svg?react";
 import type React from "react";
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "~/context/auth-context";
 import { fetchProfile } from "~/lib/profile-api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { NavUser } from "@/components/nav-user";
-import { LogoutConfirmDialog } from "@/components/logout-confirm-dialog";
+import { useLogoutDialog } from "@/components/logout-dialog";
 import { Link, useNavigate } from "react-router";
 import { GoHomeFill, GoPersonFill } from "react-icons/go";
 
@@ -40,10 +39,10 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
-  const { user, isLoading: isAuthLoading, logout } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
-  const [logoutOpen, setLogoutOpen] = useState(false);
+  const { open: openLogoutDialog } = useLogoutDialog();
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.username],
@@ -74,8 +73,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
   };
 
   return (
-    <>
-      <Sidebar {...props}>
+    <Sidebar {...props}>
       <SidebarHeader className="p-0 md:px-8 md:py-0 md:w-75 md:ml-auto">
         {isMobile ? (
           <div className="relative overflow-hidden">
@@ -220,7 +218,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
             variant="outline"
             onClick={() => {
               closeMobileSidebar();
-              setLogoutOpen(true);
+              openLogoutDialog();
             }}
             className="flex md:hidden w-full rounded-full py-7 text-xl"
           >
@@ -229,14 +227,5 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
         </SidebarFooter>
       )}
     </Sidebar>
-
-      {!isAuthLoading && user && (
-        <LogoutConfirmDialog
-          open={logoutOpen}
-          onConfirm={logout}
-          onCancel={() => setLogoutOpen(false)}
-        />
-      )}
-    </>
   );
 }
