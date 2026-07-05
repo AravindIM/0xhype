@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+} from 'typeorm';
 import { User } from '../users/user.entity';
 
 @Entity()
@@ -12,7 +18,7 @@ export class Post {
   @Column()
   link: string;
 
-  @Column({ default: new Date() })
+  @CreateDateColumn()
   date: Date;
 
   @ManyToOne(() => User, (user) => user.posts, {

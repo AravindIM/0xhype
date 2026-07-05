@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { Route } from "./+types/profile";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/app-sidebar";
-import { PostList } from "~/components/post-list";
+import { PostFeed } from "~/components/post-feed";
 import { LoadingPosts } from "~/components/loading-posts";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Separator } from "~/components/ui/separator";
@@ -51,12 +51,22 @@ export default function Profile() {
     retry: false,
   });
 
-  const { data: posts, isLoading: postsLoading } = useQuery({
+  const {
+    data: postsData,
+    isLoading: postsLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery({
     queryKey: ["userPosts", username],
-    queryFn: () => fetchUserPosts(username!),
+    queryFn: ({ pageParam }) => fetchUserPosts(username!, pageParam),
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled: !!username && !!profile,
     retry: false,
   });
+
+  const posts = postsData?.pages.flatMap((page) => page.items) ?? [];
 
   const isOwnProfile = user?.username === username;
 
@@ -243,17 +253,20 @@ export default function Profile() {
             {/* Posts */}
             {postsLoading ? (
               <LoadingPosts />
-            ) : posts && posts.length > 0 ? (
-              <PostList posts={posts} />
+            ) : posts.length > 0 ? (
+              <PostFeed
+                posts={posts}
+                hasNextPage={hasNextPage}
+                isFetchingNextPage={isFetchingNextPage}
+                fetchNextPage={fetchNextPage}
+              />
             ) : (
-              !postsLoading && (
-                <div className="py-16 flex flex-col items-center gap-2 text-muted-foreground">
-                  <p className="text-lg font-medium">No posts yet</p>
-                  {isOwnProfile && (
-                    <p className="text-sm">Share something with the world.</p>
-                  )}
-                </div>
-              )
+              <div className="py-16 flex flex-col items-center gap-2 text-muted-foreground">
+                <p className="text-lg font-medium">No posts yet</p>
+                {isOwnProfile && (
+                  <p className="text-sm">Share something with the world.</p>
+                )}
+              </div>
             )}
           </div>
         </SidebarInset>
