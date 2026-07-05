@@ -19,6 +19,11 @@ export function PostItem({ postid, title, link, username, displayName }: PostIte
       const { data } = await apiClient.get(`/api/${username}/posts/${postid}/preview`);
       return data;
     },
+    // Backend caches previews for 1 hr; mirror that here so virtualized items
+    // that unmount/remount on scroll serve from cache instead of refetching.
+    staleTime: 3_600_000,
+    gcTime: 3_600_000,
+    retry: false,
     refetchOnWindowFocus: false,
   });
 
