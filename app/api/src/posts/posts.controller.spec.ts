@@ -34,7 +34,7 @@ describe('PostsController', () => {
           title: 't',
           link: 'https://e.com',
           date: new Date(),
-          user: { username: 'bob', displayName: 'Bob' },
+          user: { username: 'bob', displayName: 'Bob', avatarUrl: null },
         },
       ],
       nextCursor: 7,
@@ -51,8 +51,7 @@ describe('PostsController', () => {
         title: 't',
         link: 'https://e.com',
         date: expect.any(Date),
-        username: 'bob',
-        displayName: 'Bob',
+        author: { username: 'bob', displayName: 'Bob', avatarUrl: null },
       },
     ]);
   });
