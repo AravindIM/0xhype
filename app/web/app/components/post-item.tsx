@@ -1,26 +1,48 @@
 import type React from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { PreviewProps } from "./preview/preview";
-import { Post } from "./post";
+import { PostCard } from "./post-card/post-card";
 import { apiClient } from "~/lib/axios";
+
+export interface PostAuthor {
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+}
+
+export interface PreviewProps {
+  link: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  siteName?: string;
+  siteUrl?: string;
+  favicon?: string;
+}
 
 export interface PostItemProps extends React.ComponentProps<"div"> {
   postid: number;
   title: string;
   link: string;
-  username: string;
-  displayName: string;
+  date: string;
+  author: PostAuthor;
 }
 
-export function PostItem({ postid, title, link, username, displayName }: PostItemProps) {
-  const { isLoading, isError, data } = useQuery<PreviewProps, Error>({
+export function PostItem({
+  postid,
+  title,
+  link,
+  date,
+  author,
+  ...props
+}: PostItemProps) {
+  const { data } = useQuery<PreviewProps, Error>({
     queryKey: ["preview", link],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/api/${username}/posts/${postid}/preview`);
+      const { data } = await apiClient.get(
+        `/api/${author.username}/posts/${postid}/preview`
+      );
       return data;
     },
-    // Backend caches previews for 1 hr; mirror that here so virtualized items
-    // that unmount/remount on scroll serve from cache instead of refetching.
     staleTime: 3_600_000,
     gcTime: 3_600_000,
     retry: false,
@@ -28,15 +50,13 @@ export function PostItem({ postid, title, link, username, displayName }: PostIte
   });
 
   return (
-    <Post
-      postid={postid}
+    <PostCard
       title={title}
       link={link}
-      username={username}
-      displayName={displayName}
-      preview={data}
-      isPreviewLoading={isLoading}
-      isPreviewError={isError}
+      author={author}
+      date={date}
+      preview={data ?? undefined}
+      {...props}
     />
   );
 }

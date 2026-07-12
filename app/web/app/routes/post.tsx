@@ -4,12 +4,10 @@ import type { Route } from "./+types/post";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/app-sidebar";
 import { NavBar } from "@/components/navbar";
-import { Post } from "~/components/post";
 import { Toaster } from "~/components/ui/sonner";
 import { useAuth } from "~/context/auth-context";
 import { apiClient } from "~/lib/axios";
-import type { PreviewProps } from "~/components/preview/preview";
-import type { PostItemProps } from "~/components/post-item";
+import { PostItem, type PostItemProps } from "~/components/post-item";
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   try {
@@ -47,17 +45,6 @@ export default function PostDetail() {
     refetchOnWindowFocus: false,
   });
 
-  const { isLoading: previewLoading, isError: previewError, data: preview } = useQuery<PreviewProps>({
-    queryKey: ["preview", post?.link],
-    queryFn: async () => {
-      const { data } = await apiClient.get(`/api/${username}/posts/${postid}/preview`);
-      return data;
-    },
-    enabled: !!post,
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
-
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -76,15 +63,12 @@ export default function PostDetail() {
             <p className="text-muted-foreground text-sm">Post not found.</p>
           )}
           {post && (
-            <Post
+            <PostItem
               postid={post.postid}
               title={post.title}
               link={post.link}
-              username={post.username}
-              displayName={post.displayName}
-              preview={preview}
-              isPreviewLoading={previewLoading}
-              isPreviewError={previewError}
+              date={post.date}
+              author={post.author}
             />
           )}
         </div>
