@@ -10,17 +10,8 @@ interface PostFeedProps {
   fetchNextPage: () => void;
 }
 
-// Rough starting guess for a post card (image + text). Real heights are measured
-// per row via `measureElement`, so this only affects the very first paint.
-const ESTIMATED_POST_HEIGHT = 450;
+const ESTIMATED_POST_HEIGHT = 500;
 
-/**
- * Window-virtualized, infinitely-scrolling feed shared by the home and profile
- * routes. Only the posts near the viewport are mounted, so the number of live
- * `PostItem`s (each with its own preview query + image preload) stays bounded
- * no matter how deep the feed grows — this is what prevents the main-thread
- * freeze that rendering the whole list caused.
- */
 export function PostFeed({
   posts,
   hasNextPage,
@@ -28,9 +19,6 @@ export function PostFeed({
   fetchNextPage,
 }: PostFeedProps) {
   const listRef = useRef<HTMLDivElement>(null);
-  // Absolute offset of the list from the top of the document. Kept in state (not
-  // a ref) so updating it re-renders and the virtualizer picks up the correct
-  // scrollMargin — otherwise rows are mispositioned beneath the navbar/header.
   const [listOffset, setListOffset] = useState(0);
 
   useLayoutEffect(() => {
@@ -54,7 +42,6 @@ export function PostFeed({
 
   const virtualItems = virtualizer.getVirtualItems();
 
-  // Auto-load the next page when the last row enters the (overscanned) window.
   useEffect(() => {
     const last = virtualItems[virtualItems.length - 1];
     if (!last) return;
@@ -93,8 +80,8 @@ export function PostFeed({
                 postid={post.postid}
                 title={post.title}
                 link={post.link}
-                username={post.username}
-                displayName={post.displayName}
+                author={post.author}
+                date={post.date}
                 className="w-full"
               />
             </div>

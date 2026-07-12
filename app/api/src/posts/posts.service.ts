@@ -8,15 +8,13 @@ import scrapePreview from 'open-graph-scraper';
 import { LinkPreviewDto } from './dto/link-preview.dto';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
-// Only the first (cursorless) page at the default limit is cached — that page
-// takes nearly all the traffic, and a single key keeps invalidation trivial.
 const DEFAULT_LIMIT = 20;
 const POSTS_FIRST_PAGE_KEY = 'posts_first_page';
 const postKey = (id: number) => `post_${id}`;
 const previewKey = (link: string) => `preview_${encodeURIComponent(link)}`;
 
-const TTL_POSTS_LIST = 60_000; // 60 s — safety net; event-driven del handles the normal case
-const TTL_ONE_HOUR = 3_600_000; // 1 hr
+const TTL_POSTS_LIST = 60_000;
+const TTL_ONE_HOUR = 3_600_000;
 
 export interface PaginationParams {
   limit: number;
@@ -49,9 +47,7 @@ export class PostsService {
     try {
       const cached = await this.cacheManager.get<Post>(key);
       if (cached) return cached;
-    } catch {
-      /* Redis unavailable — fall through to DB */
-    }
+    } catch {}
 
     const post = await this.postRepository.findOneBy({ postid });
     if (post) {
@@ -62,12 +58,6 @@ export class PostsService {
     return post;
   }
 
-  /**
-   * Keyset pagination on `postid` DESC (newest first). `postid` is a stable,
-   * unique, monotonic PK, so this is immune to inserts and never dupes/skips —
-   * unlike ordering on `date`, whose column default makes it non-unique.
-   * Fetches `limit + 1` rows to detect a next page without a trailing empty request.
-   */
   private async keysetPage(
     where: Record<string, unknown>,
     { limit, cursor }: PaginationParams,
@@ -88,8 +78,7 @@ export class PostsService {
   }
 
   async findAll(params: PaginationParams): Promise<PaginatedPosts> {
-    const isFirstDefaultPage =
-      !params.cursor && params.limit === DEFAULT_LIMIT;
+    const isFirstDefaultPage = !params.cursor && params.limit === DEFAULT_LIMIT;
 
     if (isFirstDefaultPage) {
       try {
@@ -103,11 +92,7 @@ export class PostsService {
 
     if (isFirstDefaultPage) {
       try {
-        await this.cacheManager.set(
-          POSTS_FIRST_PAGE_KEY,
-          page,
-          TTL_POSTS_LIST,
-        );
+        await this.cacheManager.set(POSTS_FIRST_PAGE_KEY, page, TTL_POSTS_LIST);
       } catch {}
     }
     return page;
