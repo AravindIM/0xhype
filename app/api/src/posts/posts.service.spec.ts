@@ -237,5 +237,30 @@ describe('PostsService', () => {
       expect(preview).toBe(cached);
       expect(mockScrape).not.toHaveBeenCalled();
     });
+
+    it('caches a preview that has an image for one hour', async () => {
+      mockScrape.mockResolvedValueOnce(
+        okResponse({
+          ogTitle: 'Example Title',
+          ogImage: [{ url: 'https://example.com/og.png' }],
+        }),
+      );
+      await service.genLinkPreview('https://example.com/');
+      expect(mockCacheManager.set).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ image: 'https://example.com/og.png' }),
+        3_600_000,
+      );
+    });
+
+    it('caches a preview without an image for five minutes', async () => {
+      mockScrape.mockResolvedValueOnce(okResponse({ ogTitle: 'No Image' }));
+      await service.genLinkPreview('https://example.com/');
+      expect(mockCacheManager.set).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ title: 'No Image' }),
+        300_000,
+      );
+    });
   });
 });

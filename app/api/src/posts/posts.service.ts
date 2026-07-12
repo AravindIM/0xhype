@@ -18,6 +18,7 @@ const s2Favicon = (domain: string) =>
 
 const TTL_POSTS_LIST = 60_000;
 const TTL_ONE_HOUR = 3_600_000;
+const TTL_INCOMPLETE_PREVIEW = 300_000;
 
 const CRAWLER_HEADERS = {
   'user-agent':
@@ -194,7 +195,11 @@ export class PostsService {
     }
 
     try {
-      await this.cacheManager.set(key, preview, TTL_ONE_HOUR);
+      await this.cacheManager.set(
+        key,
+        preview,
+        preview.image ? TTL_ONE_HOUR : TTL_INCOMPLETE_PREVIEW,
+      );
     } catch (err) {
       this.logger.warn(`Cache set failed for preview ${link}: ${err}`);
     }

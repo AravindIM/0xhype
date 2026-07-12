@@ -21,6 +21,7 @@ export interface PostCardProps extends React.ComponentProps<"div"> {
   author: PostAuthor;
   date: string;
   preview?: PreviewProps;
+  previewLoading?: boolean;
 }
 
 function safeHostname(link: string): string | null {
@@ -37,6 +38,7 @@ export function PostCard({
   author,
   date,
   preview,
+  previewLoading,
   className,
   ...props
 }: PostCardProps) {
@@ -50,7 +52,9 @@ export function PostCard({
   const hasImage = imageStatus === "loaded" && !renderError;
   const hasFavicon = faviconStatus === "loaded" && !faviconError;
   const resolving =
-    imageStatus === "loading" || (!hasImage && faviconStatus === "loading");
+    previewLoading ||
+    imageStatus === "loading" ||
+    (!hasImage && faviconStatus === "loading");
 
   const previewTitle = preview?.title ?? hostname ?? link;
   const previewDescription = preview?.description ?? link;
@@ -80,7 +84,11 @@ export function PostCard({
           />
         ) : (
           <div className="absolute inset-0 z-0 bg-black">
-            {resolving ? null : hasFavicon ? (
+            {resolving ? (
+              <div className="flex h-full w-full items-center justify-center">
+                <Logo className="h-auto w-3/5 animate-pulse text-white/60" />
+              </div>
+            ) : hasFavicon ? (
               <>
                 <img
                   src={faviconSrc}

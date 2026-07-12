@@ -35,18 +35,22 @@ export function PostItem({
   author,
   ...props
 }: PostItemProps) {
-  const { data } = useQuery<PreviewProps, Error>({
+  const { data, isPending } = useQuery<PreviewProps, Error>({
     queryKey: ["preview", link],
     queryFn: async () => {
       const { data } = await apiClient.get(
-        `/api/${author.username}/posts/${postid}/preview`
+        `/api/${author.username}/posts/${postid}/preview`,
+        { timeout: 25_000 }
       );
       return data;
     },
     staleTime: 3_600_000,
     gcTime: 3_600_000,
-    retry: false,
     refetchOnWindowFocus: false,
+    refetchInterval: (query) =>
+      query.state.data?.image || query.state.dataUpdateCount > 6
+        ? false
+        : 60_000,
   });
 
   return (
@@ -56,6 +60,7 @@ export function PostItem({
       author={author}
       date={date}
       preview={data ?? undefined}
+      previewLoading={isPending}
       {...props}
     />
   );
