@@ -11,6 +11,8 @@ import { useImageStatus } from "~/hooks/use-image-status";
 import { useLiveAuthor } from "~/hooks/use-live-author";
 import type { PostAuthor, PreviewProps } from "../post-item";
 import { PostCardText } from "./post-card-text";
+import { VideoPreview } from "./video-preview";
+import { isVideoHost } from "~/lib/video";
 
 TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
@@ -114,6 +116,8 @@ export function PostCard({
             )}
           </div>
         )}
+
+        {hasImage && isVideoHost(hostname) && <VideoPreview link={link} />}
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[70%] bg-linear-to-t from-black/90 via-black/75 via-45% to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-linear-to-b from-black/70 to-transparent" />
