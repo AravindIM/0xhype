@@ -58,7 +58,7 @@ export class UserPostsController {
     @Param('username') username: string,
     @Param('postid', ParseIntPipe) postid: number,
   ) {
-    const post = await this.postsService.findWithUser(postid);
+    const post = await this.postsService.find(postid);
     if (!post || post.user.username !== username)
       throw new NotFoundException('Post not found');
     return {
@@ -79,7 +79,7 @@ export class UserPostsController {
     @Param('username') username: string,
     @Param('postid', ParseIntPipe) postid: number,
   ): Promise<LinkPreviewDto | null> {
-    const post = await this.postsService.findWithUser(postid);
+    const post = await this.postsService.find(postid);
     if (!post || post.user.username !== username)
       throw new NotFoundException('Post not found');
     try {
