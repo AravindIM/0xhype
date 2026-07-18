@@ -1,9 +1,18 @@
 import { useState } from "react";
 import type React from "react";
-import { Globe } from "lucide-react";
+import { EllipsisVertical, Globe, Trash2 } from "lucide-react";
 import Logo from "@/assets/logo.svg?react";
 import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DeletePostDialog } from "@/components/delete-post-dialog";
+import { useAuth } from "~/context/auth-context";
 import { cn } from "~/lib/utils";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
@@ -18,6 +27,7 @@ TimeAgo.addLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
 export interface PostCardProps extends React.ComponentProps<"div"> {
+  postid: number;
   title: string;
   link: string;
   author: PostAuthor;
@@ -35,6 +45,7 @@ function safeHostname(link: string): string | null {
 }
 
 export function PostCard({
+  postid,
   title,
   link,
   author,
@@ -45,6 +56,9 @@ export function PostCard({
   ...props
 }: PostCardProps) {
   const { username, displayName, avatarUrl } = useLiveAuthor(author);
+  const { user } = useAuth();
+  const isOwner = user?.username === author.username;
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const hostname = safeHostname(link);
   const imageStatus = useImageStatus(preview?.image);
   const faviconSrc = preview?.favicon;
@@ -161,6 +175,39 @@ export function PostCard({
               "twitter-minute-now"
             )}
           </time>
+          {isOwner ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="pointer-events-auto -my-1.5 -mr-2 size-8 shrink-0 rounded-full text-white/70 hover:bg-white/10 hover:text-white"
+                >
+                  <EllipsisVertical className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={() => setDeleteOpen(true)}
+                >
+                  <Trash2 />
+                  Delete post
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <span className="pointer-events-auto -my-1.5 -mr-2 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled
+                className="size-8 rounded-full text-white/70"
+              >
+                <EllipsisVertical className="size-4" />
+              </Button>
+            </span>
+          )}
         </div>
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col gap-3 p-4">
@@ -193,6 +240,15 @@ export function PostCard({
           )}
         </div>
       </div>
+      {isOwner && (
+        <DeletePostDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          postid={postid}
+          title={title}
+          username={author.username}
+        />
+      )}
     </div>
   );
 }
