@@ -1,9 +1,11 @@
 import {
   Controller,
+  Delete,
   Get,
   Post,
   NotFoundException,
   ForbiddenException,
+  UnauthorizedException,
   InternalServerErrorException,
   Param,
   ParseIntPipe,
@@ -101,5 +103,19 @@ export class UserPostsController {
     const post = await this.postsService.create(createPostDto, req.user.userId);
     if (!post) throw new InternalServerErrorException();
     return 'Post Created!';
+  }
+
+  @Delete(':postid')
+  @UseGuards(JwtAuthGuard)
+  async remove(
+    @Param('postid', ParseIntPipe) postid: number,
+    @Request() req: any,
+  ): Promise<string> {
+    const post = await this.postsService.find(postid);
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.user.username !== req.user.username)
+      throw new UnauthorizedException();
+    await this.postsService.remove(postid);
+    return 'Post Deleted!';
   }
 }
