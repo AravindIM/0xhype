@@ -10,7 +10,6 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 const DEFAULT_LIMIT = 20;
 const POSTS_FIRST_PAGE_KEY = 'posts_first_page';
-const postKey = (id: number) => `post_${id}`;
 const previewKey = (link: string) => `preview_${encodeURIComponent(link)}`;
 
 const s2Favicon = (domain: string) =>
@@ -66,31 +65,11 @@ export class PostsService {
     private cacheManager: Cache,
   ) {}
 
-  async findWithUser(postid: number): Promise<Post | null> {
+  async find(postid: number): Promise<Post | null> {
     return this.postRepository.findOne({
       where: { postid },
       relations: ['user'],
     });
-  }
-
-  async find(postid: number): Promise<Post | null> {
-    const key = postKey(postid);
-    try {
-      const cached = await this.cacheManager.get<Post>(key);
-      if (cached) return cached;
-    } catch (err) {
-      this.logger.warn(`Cache get failed for post ${postid}: ${err}`);
-    }
-
-    const post = await this.postRepository.findOneBy({ postid });
-    if (post) {
-      try {
-        await this.cacheManager.set(key, post, TTL_ONE_HOUR);
-      } catch (err) {
-        this.logger.warn(`Cache set failed for post ${postid}: ${err}`);
-      }
-    }
-    return post;
   }
 
   private async keysetPage(
