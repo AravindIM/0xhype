@@ -139,6 +139,15 @@ export class PostsService {
     return saved;
   }
 
+  async remove(postid: number): Promise<void> {
+    await this.postRepository.softDelete(postid);
+    try {
+      await this.cacheManager.del(POSTS_FIRST_PAGE_KEY);
+    } catch (err) {
+      this.logger.warn(`Cache invalidation failed for post ${postid}: ${err}`);
+    }
+  }
+
   async genLinkPreview(link: string): Promise<LinkPreviewDto> {
     const key = previewKey(link);
     try {
