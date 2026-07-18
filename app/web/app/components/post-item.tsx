@@ -55,6 +55,7 @@ export function PostItem({
 
   return (
     <PostCard
+      postid={postid}
       title={title}
       link={link}
       author={author}
