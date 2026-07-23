@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './post.entity';
@@ -8,15 +8,41 @@ import scrapePreview from 'open-graph-scraper';
 import { LinkPreviewDto } from './dto/link-preview.dto';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
-// Only the first (cursorless) page at the default limit is cached — that page
-// takes nearly all the traffic, and a single key keeps invalidation trivial.
 const DEFAULT_LIMIT = 20;
 const POSTS_FIRST_PAGE_KEY = 'posts_first_page';
-const postKey = (id: number) => `post_${id}`;
 const previewKey = (link: string) => `preview_${encodeURIComponent(link)}`;
 
-const TTL_POSTS_LIST = 60_000; // 60 s — safety net; event-driven del handles the normal case
-const TTL_ONE_HOUR = 3_600_000; // 1 hr
+const s2Favicon = (domain: string) =>
+  `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=256`;
+
+const TTL_POSTS_LIST = 60_000;
+const TTL_ONE_HOUR = 3_600_000;
+const TTL_INCOMPLETE_PREVIEW = 300_000;
+
+const CRAWLER_HEADERS = {
+  'user-agent':
+    'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+  'accept-language': 'en-US,en;q=0.9',
+};
+
+const BROWSER_HEADERS = {
+  'user-agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
+  'accept-language': 'en-US,en;q=0.9',
+};
+
+const BOT_DETECTED_TITLES = [
+  'please wait for verification',
+  'just a moment',
+  'access denied',
+  'attention required',
+  'are you a human',
+  'verify you are human',
+  'security check',
+];
+
+const isFlaggedBot = (title?: string): boolean =>
+  !!title && BOT_DETECTED_TITLES.some((t) => title.toLowerCase().includes(t));
 
 export interface PaginationParams {
   limit: number;
@@ -30,6 +56,8 @@ export interface PaginatedPosts {
 
 @Injectable()
 export class PostsService {
+  private readonly logger = new Logger(PostsService.name);
+
   constructor(
     @InjectRepository(Post)
     private postRepository: Repository<Post>,
@@ -37,37 +65,13 @@ export class PostsService {
     private cacheManager: Cache,
   ) {}
 
-  async findWithUser(postid: number): Promise<Post | null> {
+  async find(postid: number): Promise<Post | null> {
     return this.postRepository.findOne({
       where: { postid },
       relations: ['user'],
     });
   }
 
-  async find(postid: number): Promise<Post | null> {
-    const key = postKey(postid);
-    try {
-      const cached = await this.cacheManager.get<Post>(key);
-      if (cached) return cached;
-    } catch {
-      /* Redis unavailable — fall through to DB */
-    }
-
-    const post = await this.postRepository.findOneBy({ postid });
-    if (post) {
-      try {
-        await this.cacheManager.set(key, post, TTL_ONE_HOUR);
-      } catch {}
-    }
-    return post;
-  }
-
-  /**
-   * Keyset pagination on `postid` DESC (newest first). `postid` is a stable,
-   * unique, monotonic PK, so this is immune to inserts and never dupes/skips —
-   * unlike ordering on `date`, whose column default makes it non-unique.
-   * Fetches `limit + 1` rows to detect a next page without a trailing empty request.
-   */
   private async keysetPage(
     where: Record<string, unknown>,
     { limit, cursor }: PaginationParams,
@@ -88,27 +92,26 @@ export class PostsService {
   }
 
   async findAll(params: PaginationParams): Promise<PaginatedPosts> {
-    const isFirstDefaultPage =
-      !params.cursor && params.limit === DEFAULT_LIMIT;
+    const isFirstDefaultPage = !params.cursor && params.limit === DEFAULT_LIMIT;
 
     if (isFirstDefaultPage) {
       try {
         const cached =
           await this.cacheManager.get<PaginatedPosts>(POSTS_FIRST_PAGE_KEY);
         if (cached) return cached;
-      } catch {}
+      } catch (err) {
+        this.logger.warn(`Cache get failed for posts first page: ${err}`);
+      }
     }
 
     const page = await this.keysetPage({}, params);
 
     if (isFirstDefaultPage) {
       try {
-        await this.cacheManager.set(
-          POSTS_FIRST_PAGE_KEY,
-          page,
-          TTL_POSTS_LIST,
-        );
-      } catch {}
+        await this.cacheManager.set(POSTS_FIRST_PAGE_KEY, page, TTL_POSTS_LIST);
+      } catch (err) {
+        this.logger.warn(`Cache set failed for posts first page: ${err}`);
+      }
     }
     return page;
   }
@@ -128,38 +131,87 @@ export class PostsService {
     const saved = await this.postRepository.save(post);
     try {
       await this.cacheManager.del(POSTS_FIRST_PAGE_KEY);
-    } catch {}
+    } catch (err) {
+      this.logger.warn(
+        `Cache invalidation failed for posts first page: ${err}`,
+      );
+    }
     return saved;
   }
 
-  async genLinkPreview(link: string): Promise<LinkPreviewDto | undefined> {
+  async remove(postid: number): Promise<void> {
+    await this.postRepository.softDelete(postid);
+    try {
+      await this.cacheManager.del(POSTS_FIRST_PAGE_KEY);
+    } catch (err) {
+      this.logger.warn(`Cache invalidation failed for post ${postid}: ${err}`);
+    }
+  }
+
+  async genLinkPreview(link: string): Promise<LinkPreviewDto> {
     const key = previewKey(link);
     try {
       const cached = await this.cacheManager.get<LinkPreviewDto>(key);
       if (cached) return cached;
-    } catch {}
-
-    const response = await scrapePreview({ url: link, timeout: 5000 });
-    if (!response || response.error || !response.result.success) {
-      return undefined;
+    } catch (err) {
+      this.logger.warn(`Cache get failed for preview ${link}: ${err}`);
     }
-    const { result } = response;
+
     const url = new URL(link);
     const domain = url.host;
-    const preview: LinkPreviewDto = {
-      title: result.ogTitle,
-      description: result.ogDescription,
-      image: result.ogImage?.[0]?.url,
-      url: result.ogUrl,
-      siteName: result.ogSiteName,
+    const favicon = s2Favicon(domain);
+    let preview: LinkPreviewDto = {
+      url: link,
+      siteName: domain,
       siteUrl: domain,
-      favicon: result.favicon?.startsWith('/')
-        ? `https://${domain}${result.favicon}`
-        : result.favicon,
+      favicon,
     };
+
+    const result =
+      (await this.tryScrape(link, CRAWLER_HEADERS)) ??
+      (await this.tryScrape(link, BROWSER_HEADERS));
+    if (result) {
+      preview = {
+        title: result.ogTitle,
+        description: result.ogDescription,
+        image: result.ogImage?.[0]?.url,
+        url: result.ogUrl,
+        siteName: result.ogSiteName,
+        siteUrl: domain,
+        favicon,
+      };
+    }
+
     try {
-      await this.cacheManager.set(key, preview, TTL_ONE_HOUR);
-    } catch {}
+      await this.cacheManager.set(
+        key,
+        preview,
+        preview.image ? TTL_ONE_HOUR : TTL_INCOMPLETE_PREVIEW,
+      );
+    } catch (err) {
+      this.logger.warn(`Cache set failed for preview ${link}: ${err}`);
+    }
     return preview;
+  }
+
+  private async tryScrape(link: string, headers: Record<string, string>) {
+    try {
+      const response = await scrapePreview({
+        url: link,
+        timeout: 10,
+        fetchOptions: { headers },
+      });
+      if (
+        response &&
+        !response.error &&
+        response.result.success &&
+        !isFlaggedBot(response.result.ogTitle)
+      ) {
+        return response.result;
+      }
+    } catch (err) {
+      this.logger.warn(`Scrape failed for ${link}: ${err}`);
+    }
+    return null;
   }
 }

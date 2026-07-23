@@ -15,8 +15,11 @@ export class PostsController {
         title: p.title,
         link: p.link,
         date: p.date,
-        username: p.user.username,
-        displayName: p.user.displayName,
+        author: {
+          username: p.user.username,
+          displayName: p.user.displayName,
+          avatarUrl: p.user.avatarUrl,
+        },
       })),
       nextCursor,
     };

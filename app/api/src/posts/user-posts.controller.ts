@@ -1,9 +1,11 @@
 import {
   Controller,
+  Delete,
   Get,
   Post,
   NotFoundException,
   ForbiddenException,
+  UnauthorizedException,
   InternalServerErrorException,
   Param,
   ParseIntPipe,
@@ -43,8 +45,11 @@ export class UserPostsController {
         title: p.title,
         link: p.link,
         date: p.date,
-        username: p.user.username,
-        displayName: p.user.displayName,
+        author: {
+          username: p.user.username,
+          displayName: p.user.displayName,
+          avatarUrl: p.user.avatarUrl,
+        },
       })),
       nextCursor,
     };
@@ -55,7 +60,7 @@ export class UserPostsController {
     @Param('username') username: string,
     @Param('postid', ParseIntPipe) postid: number,
   ) {
-    const post = await this.postsService.findWithUser(postid);
+    const post = await this.postsService.find(postid);
     if (!post || post.user.username !== username)
       throw new NotFoundException('Post not found');
     return {
@@ -63,8 +68,11 @@ export class UserPostsController {
       title: post.title,
       link: post.link,
       date: post.date,
-      username: post.user.username,
-      displayName: post.user.displayName,
+      author: {
+        username: post.user.username,
+        displayName: post.user.displayName,
+        avatarUrl: post.user.avatarUrl,
+      },
     };
   }
 
@@ -73,7 +81,7 @@ export class UserPostsController {
     @Param('username') username: string,
     @Param('postid', ParseIntPipe) postid: number,
   ): Promise<LinkPreviewDto | null> {
-    const post = await this.postsService.findWithUser(postid);
+    const post = await this.postsService.find(postid);
     if (!post || post.user.username !== username)
       throw new NotFoundException('Post not found');
     try {
@@ -95,5 +103,19 @@ export class UserPostsController {
     const post = await this.postsService.create(createPostDto, req.user.userId);
     if (!post) throw new InternalServerErrorException();
     return 'Post Created!';
+  }
+
+  @Delete(':postid')
+  @UseGuards(JwtAuthGuard)
+  async remove(
+    @Param('postid', ParseIntPipe) postid: number,
+    @Request() req: any,
+  ): Promise<string> {
+    const post = await this.postsService.find(postid);
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.user.username !== req.user.username)
+      throw new UnauthorizedException();
+    await this.postsService.remove(postid);
+    return 'Post Deleted!';
   }
 }

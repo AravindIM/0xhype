@@ -1,42 +1,68 @@
 import type React from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { PreviewProps } from "./preview/preview";
-import { Post } from "./post";
+import { PostCard } from "./post-card/post-card";
 import { apiClient } from "~/lib/axios";
+
+export interface PostAuthor {
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+}
+
+export interface PreviewProps {
+  link: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  siteName?: string;
+  siteUrl?: string;
+  favicon?: string;
+}
 
 export interface PostItemProps extends React.ComponentProps<"div"> {
   postid: number;
   title: string;
   link: string;
-  username: string;
-  displayName: string;
+  date: string;
+  author: PostAuthor;
 }
 
-export function PostItem({ postid, title, link, username, displayName }: PostItemProps) {
-  const { isLoading, isError, data } = useQuery<PreviewProps, Error>({
+export function PostItem({
+  postid,
+  title,
+  link,
+  date,
+  author,
+  ...props
+}: PostItemProps) {
+  const { data, isPending } = useQuery<PreviewProps, Error>({
     queryKey: ["preview", link],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/api/${username}/posts/${postid}/preview`);
+      const { data } = await apiClient.get(
+        `/api/${author.username}/posts/${postid}/preview`,
+        { timeout: 25_000 }
+      );
       return data;
     },
-    // Backend caches previews for 1 hr; mirror that here so virtualized items
-    // that unmount/remount on scroll serve from cache instead of refetching.
     staleTime: 3_600_000,
     gcTime: 3_600_000,
-    retry: false,
     refetchOnWindowFocus: false,
+    refetchInterval: (query) =>
+      query.state.data?.image || query.state.dataUpdateCount > 6
+        ? false
+        : 60_000,
   });
 
   return (
-    <Post
+    <PostCard
       postid={postid}
       title={title}
       link={link}
-      username={username}
-      displayName={displayName}
-      preview={data}
-      isPreviewLoading={isLoading}
-      isPreviewError={isError}
+      author={author}
+      date={date}
+      preview={data ?? undefined}
+      previewLoading={isPending}
+      {...props}
     />
   );
 }
