@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { NavUser } from "@/components/nav-user";
 import { useLogoutDialog } from "@/components/logout-dialog";
+import { useNewPostDialog } from "@/components/new-post-dialog";
 import { Link, useNavigate } from "react-router";
 import { GoHomeFill, GoPersonFill } from "react-icons/go";
 
@@ -34,15 +35,12 @@ const navItems: NavItem[] = [
   },
 ];
 
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  onPostClick?: () => void;
-}
-
-export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { user, isLoading: isAuthLoading } = useAuth();
   const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
   const { open: openLogoutDialog } = useLogoutDialog();
+  const { open: openNewPostDialog } = useNewPostDialog();
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.username],
@@ -58,15 +56,6 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
         .toUpperCase()
         .slice(0, 2)
     : "";
-
-  const handlePostClick = () => {
-    if (isAuthLoading) return;
-    if (user) {
-      onPostClick?.();
-    } else {
-      navigate("/login");
-    }
-  };
 
   const closeMobileSidebar = () => {
     if (isMobile) setOpenMobile(false);
@@ -185,7 +174,7 @@ export function AppSidebar({ onPostClick, ...props }: AppSidebarProps) {
 
           <SidebarMenuItem key="post-button" className="hidden md:flex">
             <SidebarMenuButton
-              onClick={handlePostClick}
+              onClick={openNewPostDialog}
               className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground p-7 rounded-full justify-center text-xl font-semi-bold cursor-pointer"
             >
               Post

@@ -13,6 +13,7 @@ import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "~/context/auth-context";
 import { LogoutDialogProvider } from "@/components/logout-dialog";
+import { NewPostDialogProvider } from "@/components/new-post-dialog";
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/x-icon", href: "/favicon.ico?v=2" },
@@ -52,7 +53,9 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <LogoutDialogProvider>
-          <Outlet />
+          <NewPostDialogProvider>
+            <Outlet />
+          </NewPostDialogProvider>
         </LogoutDialogProvider>
       </AuthProvider>
     </QueryClientProvider>
