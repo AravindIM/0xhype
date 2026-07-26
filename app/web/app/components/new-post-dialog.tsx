@@ -32,9 +32,8 @@ export function NewPostDialogProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
-  const { register, onSubmit, reset, isSubmitting, isError } = useCreatePostForm(
-    { onSuccess: () => setIsOpen(false) },
-  );
+  const { register, onSubmit, reset, isSubmitting, isError, resetSignal } =
+    useCreatePostForm({ onSuccess: () => setIsOpen(false) });
 
   const open = useCallback(() => {
     if (isAuthLoading) return;
@@ -99,6 +98,7 @@ export function NewPostDialogProvider({ children }: { children: ReactNode }) {
               onSubmit={onSubmit}
               isSubmitting={isSubmitting}
               isError={isError}
+              resetSignal={resetSignal}
             />
           </div>
         </DialogContent>

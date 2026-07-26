@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { useAuth } from "~/context/auth-context";
 import { apiClient } from "~/lib/axios";
 
@@ -11,6 +12,7 @@ export interface CreatePostInput {
 export function useCreatePostForm(options?: { onSuccess?: () => void }) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [resetSignal, setResetSignal] = useState(0);
 
   const {
     register,
@@ -26,6 +28,7 @@ export function useCreatePostForm(options?: { onSuccess?: () => void }) {
     onSuccess: () => {
       reset();
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      setResetSignal((n) => n + 1);
       options?.onSuccess?.();
     },
   });
@@ -40,5 +43,6 @@ export function useCreatePostForm(options?: { onSuccess?: () => void }) {
     reset,
     isSubmitting,
     isError: Boolean(mutation.error),
+    resetSignal,
   };
 }

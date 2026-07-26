@@ -63,6 +63,7 @@ export default function Home() {
     onSubmit,
     isSubmitting,
     isError: isCreateError,
+    resetSignal,
   } = useCreatePostForm();
 
   const refetchPosts = () => {
@@ -84,6 +85,7 @@ export default function Home() {
                 onSubmit={onSubmit}
                 isSubmitting={isSubmitting}
                 isError={isCreateError}
+                resetSignal={resetSignal}
               />
               </div>
             )}

@@ -18,6 +18,7 @@ export interface CreatePostFormProps {
   isError: boolean;
   formId?: string;
   onReadyChange?: (ready: boolean) => void;
+  resetSignal?: number;
 }
 
 function isValidUrl(value: string): boolean {
@@ -39,6 +40,7 @@ export function CreatePostForm({
   isError,
   formId,
   onReadyChange,
+  resetSignal,
 }: CreatePostFormProps) {
   const [isErrorDismissed, setIsErrorDismissed] = useState(false);
   const [linkValue, setLinkValue] = useState("");
@@ -111,6 +113,17 @@ export function CreatePostForm({
     return () => clearTimeout(t);
   }, [titleValue]);
 
+  const prevResetSignal = useRef(resetSignal);
+  useEffect(() => {
+    if (resetSignal === prevResetSignal.current) return;
+    prevResetSignal.current = resetSignal;
+    setLinkValue("");
+    setTitleValue("");
+    setDebouncedLink("");
+    setDebouncedTitle("");
+    setIsTitleRevealed(false);
+  }, [resetSignal]);
+
   return (
     <form
       id={formId}
@@ -125,7 +138,9 @@ export function CreatePostForm({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.2 }}
-            onAnimationComplete={scheduleTitleRevealed}
+            onAnimationComplete={() => {
+              if (isLinkValid) scheduleTitleRevealed();
+            }}
           >
             <Input
               type="text"
