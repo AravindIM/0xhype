@@ -90,7 +90,7 @@ export function NewPostDialogProvider({ children }: { children: ReactNode }) {
             </Button>
           </div>
 
-          <div className="px-6 pt-3 pb-32">
+          <div className="px-6 pt-3 pb-3 min-h-[11.25rem]">
             <CreatePostForm
               formId="new-post-form"
               onReadyChange={setIsReady}

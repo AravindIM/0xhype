@@ -1,11 +1,14 @@
 import type React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CircleXIcon } from "lucide-react";
+import { usePreviewByUrl } from "~/hooks/use-preview-by-url";
+import { PostPreviewCard } from "@/components/post-card/post-preview-card";
+import type { PreviewProps } from "~/components/post-item";
 
 export interface CreatePostFormProps {
   titleInputProps: React.InputHTMLAttributes<HTMLInputElement>;
@@ -26,6 +29,8 @@ function isValidUrl(value: string): boolean {
   }
 }
 
+const PREVIEW_DEBOUNCE_MS = 400;
+
 export function CreatePostForm({
   titleInputProps,
   linkInputProps,
@@ -37,12 +42,41 @@ export function CreatePostForm({
 }: CreatePostFormProps) {
   const [isErrorDismissed, setIsErrorDismissed] = useState(false);
   const [linkValue, setLinkValue] = useState("");
+  const [titleValue, setTitleValue] = useState("");
   const [isTitleRevealed, setIsTitleRevealed] = useState(false);
+  const [debouncedLink, setDebouncedLink] = useState("");
+  const [debouncedTitle, setDebouncedTitle] = useState("");
 
   const trimmedLink = linkValue.trim();
   const isLinkValid = isValidUrl(trimmedLink);
   const showLinkError = trimmedLink.length > 0 && !isLinkValid;
   const isReady = isLinkValid && isTitleRevealed;
+
+  const isDebouncedLinkValid = isValidUrl(debouncedLink);
+  const {
+    data: previewData,
+    isPending: isPreviewPending,
+    isError: isPreviewError,
+  } = usePreviewByUrl(debouncedLink, isDebouncedLinkValid);
+  const previewFailed =
+    isPreviewError || (!isPreviewPending && previewData == null);
+  const showPreview = isDebouncedLinkValid && !previewFailed;
+
+  const lastPreviewRef = useRef<{
+    link: string;
+    title: string;
+    preview: PreviewProps | null;
+    loading: boolean;
+  } | null>(null);
+  if (showPreview) {
+    lastPreviewRef.current = {
+      link: debouncedLink,
+      title: debouncedTitle,
+      preview: previewData ?? null,
+      loading: isPreviewPending,
+    };
+  }
+  const previewSnapshot = lastPreviewRef.current;
 
   useEffect(() => {
     if (isError) {
@@ -62,6 +96,20 @@ export function CreatePostForm({
   useEffect(() => {
     setIsTitleRevealed(false);
   }, [isLinkValid]);
+
+  useEffect(() => {
+    if (!isValidUrl(trimmedLink)) {
+      setDebouncedLink(trimmedLink);
+      return;
+    }
+    const t = setTimeout(() => setDebouncedLink(trimmedLink), PREVIEW_DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [trimmedLink]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedTitle(titleValue), PREVIEW_DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [titleValue]);
 
   return (
     <form
@@ -84,6 +132,10 @@ export function CreatePostForm({
               placeholder="Give it a title"
               className="rounded-none! border-0! focus-visible:ring-0! focus-visible:ring-offset-0! shadow-none! leading-none! p-0 font-semibold"
               {...titleInputProps}
+              onChange={(e) => {
+                titleInputProps.onChange?.(e);
+                setTitleValue(e.target.value);
+              }}
             />
           </motion.div>
         )}
@@ -105,6 +157,7 @@ export function CreatePostForm({
         className="rounded-none! border-0! focus-visible:ring-0! focus-visible:ring-offset-0! shadow-none! leading-none! p-0 font-normal text-sm"
         {...linkInputProps}
         onChange={(e) => {
+          linkInputProps.onChange?.(e);
           setLinkValue(e.target.value);
           setIsErrorDismissed(true);
         }}
@@ -133,6 +186,28 @@ export function CreatePostForm({
           </Button>
         </div>
       )}
+
+      <AnimatePresence initial={false}>
+        {showPreview && previewSnapshot && (
+          <motion.div
+            key="preview"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <div className="px-2 pt-2">
+              <PostPreviewCard
+                link={previewSnapshot.link}
+                title={previewSnapshot.title}
+                preview={previewSnapshot.preview}
+                previewLoading={previewSnapshot.loading}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </form>
   );
 }
