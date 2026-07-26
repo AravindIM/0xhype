@@ -2,22 +2,27 @@ import { useEffect, useState } from "react";
 
 export type ImageStatus = "loading" | "loaded" | "error";
 
+interface ImageState {
+  src?: string;
+  status: ImageStatus;
+}
+
 export function useImageStatus(src?: string): ImageStatus {
-  const [status, setStatus] = useState<ImageStatus>("loading");
+  const [state, setState] = useState<ImageState>({ src, status: "loading" });
 
   useEffect(() => {
     if (!src) {
-      setStatus("error");
+      setState({ src, status: "error" });
       return;
     }
     let cancelled = false;
-    setStatus("loading");
+    setState({ src, status: "loading" });
     const img = new Image();
     img.onload = () => {
-      if (!cancelled) setStatus("loaded");
+      if (!cancelled) setState({ src, status: "loaded" });
     };
     img.onerror = () => {
-      if (!cancelled) setStatus("error");
+      if (!cancelled) setState({ src, status: "error" });
     };
     img.src = src;
     return () => {
@@ -25,5 +30,6 @@ export function useImageStatus(src?: string): ImageStatus {
     };
   }, [src]);
 
-  return status;
+  if (state.src !== src) return src ? "loading" : "error";
+  return state.status;
 }

@@ -1,19 +1,9 @@
-import { useRef } from "react";
-import { useNavigate } from "react-router";
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "./+types/home";
 import { NavBar } from "@/components/navbar";
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "~/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/app-sidebar";
 import { CreatePost } from "~/components/create-post";
-import { useForm, type SubmitHandler } from "react-hook-form";
 import { PostFeed } from "~/components/post-feed";
 import { TrendingPanel } from "~/components/trending-panel";
 import { Toaster } from "@/components/ui/sonner";
@@ -22,12 +12,7 @@ import { PostFetchError } from "@/components/post-fetch-error";
 import type { PostItemProps } from "~/components/post-item";
 import { useAuth } from "~/context/auth-context";
 import { apiClient } from "~/lib/axios";
-import { Fab } from "~/components/fab";
-
-interface CreatePostInput {
-  title: string;
-  link: string;
-}
+import { useCreatePostForm } from "~/hooks/use-create-post-form";
 
 interface PostsPage {
   items: PostItemProps[];
@@ -48,8 +33,6 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const queryClient = useQueryClient();
   const { user, isLoading: isAuthLoading } = useAuth();
-  const navigate = useNavigate();
-  const createPostRef = useRef<HTMLDivElement>(null);
 
   const {
     isPending,
@@ -77,61 +60,33 @@ export default function Home() {
 
   const {
     register,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting },
-  } = useForm<CreatePostInput>();
+    onSubmit,
+    isSubmitting,
+    isError: isCreateError,
+    resetSignal,
+  } = useCreatePostForm();
 
   const refetchPosts = () => {
     queryClient.invalidateQueries({ queryKey: ["posts"] });
   };
 
-  const createPostMutation = useMutation({
-    mutationFn: async (data: CreatePostInput) => {
-      await apiClient.post(`/api/${user!.username}/posts`, data);
-    },
-    onSuccess: () => {
-      reset();
-      refetchPosts();
-    },
-  });
-
-  const onSubmit: SubmitHandler<CreatePostInput> = async (data) => {
-    await createPostMutation.mutateAsync(data);
-  };
-
-  const handleFabClick = () => {
-    if (isAuthLoading) return;
-    if (user) {
-      createPostRef.current?.scrollIntoView({ behavior: "smooth" });
-      createPostRef.current?.querySelector("input")?.focus();
-    } else {
-      navigate("/login");
-    }
-  };
-
   return (
     <>
       <SidebarProvider>
-        <AppSidebar
-          variant="sidebar"
-          onPostClick={() => {
-            createPostRef.current?.scrollIntoView({ behavior: "smooth" });
-            createPostRef.current?.querySelector("input")?.focus();
-          }}
-        />
+        <AppSidebar variant="sidebar" />
         <SidebarInset>
           <NavBar user={!isAuthLoading && user ? user : null} />
           <div className="flex flex-col justify-center">
             {user && (
-              <div ref={createPostRef}>
+              <div className="hidden md:block">
                 <CreatePost
-                  titleInputProps={register("title")}
-                  linkInputProps={register("link", { required: true })}
-                  onSubmit={handleSubmit(onSubmit)}
-                  isSubmitting={isSubmitting}
-                  isError={Boolean(createPostMutation.error)}
-                />
+                titleInputProps={register("title")}
+                linkInputProps={register("link", { required: true })}
+                onSubmit={onSubmit}
+                isSubmitting={isSubmitting}
+                isError={isCreateError}
+                resetSignal={resetSignal}
+              />
               </div>
             )}
             {isError ? (
@@ -156,7 +111,6 @@ export default function Home() {
         <TrendingPanel />
       </SidebarProvider>
       <Toaster position="top-center" />
-      <Fab onClick={handleFabClick} />
     </>
   );
 }

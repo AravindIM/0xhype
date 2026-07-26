@@ -55,6 +55,22 @@ export class UserPostsController {
     };
   }
 
+  @Get('preview')
+  @UseGuards(JwtAuthGuard)
+  async getUrlPreview(
+    @Param('username') username: string,
+    @Query('url') url: string,
+    @Request() req: any,
+  ): Promise<LinkPreviewDto | null> {
+    if (req.user.username !== username) throw new ForbiddenException();
+    if (!url) return null;
+    try {
+      return (await this.postsService.genLinkPreview(url)) ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   @Get(':postid')
   async getPost(
     @Param('username') username: string,
