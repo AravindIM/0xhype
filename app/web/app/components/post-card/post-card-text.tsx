@@ -3,6 +3,7 @@ interface PostCardTextProps {
   postTitle: string;
   previewTitle: string;
   previewDescription: string;
+  interactive?: boolean;
 }
 
 export function PostCardText({
@@ -10,14 +11,10 @@ export function PostCardText({
   postTitle,
   previewTitle,
   previewDescription,
+  interactive = true,
 }: PostCardTextProps) {
-  return (
-    <a
-      href={link}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="pointer-events-auto block cursor-pointer"
-    >
+  const inner = (
+    <>
       <h2 className="overflow-hidden max-h-[2lh] text-2xl font-bold leading-tight text-white">
         {postTitle}
       </h2>
@@ -29,6 +26,21 @@ export function PostCardText({
           {previewDescription}
         </p>
       </div>
+    </>
+  );
+
+  if (!interactive) {
+    return <div className="block">{inner}</div>;
+  }
+
+  return (
+    <a
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="pointer-events-auto block cursor-pointer"
+    >
+      {inner}
     </a>
   );
 }
