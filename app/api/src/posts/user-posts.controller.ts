@@ -5,7 +5,6 @@ import {
   Post,
   NotFoundException,
   ForbiddenException,
-  UnauthorizedException,
   InternalServerErrorException,
   Param,
   ParseIntPipe,
@@ -15,7 +14,6 @@ import {
   Request,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { UsersService } from '../users/users.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { LinkPreviewDto } from './dto/link-preview.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
@@ -23,20 +21,15 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller(':username/posts')
 export class UserPostsController {
-  constructor(
-    private readonly postsService: PostsService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly postsService: PostsService) {}
 
   @Get()
   async getUserPosts(
     @Param('username') username: string,
     @Query() query: PaginationQueryDto,
   ) {
-    const result = await this.usersService.findByUsername(username);
-    if (!result) throw new NotFoundException('User not found');
-    const { items, nextCursor } = await this.postsService.findByUserId(
-      result.user.id,
+    const { items, nextCursor } = await this.postsService.findByUsername(
+      username,
       query,
     );
     return {
@@ -76,9 +69,8 @@ export class UserPostsController {
     @Param('username') username: string,
     @Param('postid', ParseIntPipe) postid: number,
   ) {
-    const post = await this.postsService.find(postid);
-    if (!post || post.user.username !== username)
-      throw new NotFoundException('Post not found');
+    const post = await this.postsService.find(postid, username);
+    if (!post) throw new NotFoundException('Post not found');
     return {
       postid: post.postid,
       title: post.title,
@@ -97,9 +89,8 @@ export class UserPostsController {
     @Param('username') username: string,
     @Param('postid', ParseIntPipe) postid: number,
   ): Promise<LinkPreviewDto | null> {
-    const post = await this.postsService.find(postid);
-    if (!post || post.user.username !== username)
-      throw new NotFoundException('Post not found');
+    const post = await this.postsService.find(postid, username);
+    if (!post) throw new NotFoundException('Post not found');
     try {
       const preview = await this.postsService.genLinkPreview(post.link);
       return preview ?? null;
@@ -127,10 +118,8 @@ export class UserPostsController {
     @Param('postid', ParseIntPipe) postid: number,
     @Request() req: any,
   ): Promise<string> {
-    const post = await this.postsService.find(postid);
+    const post = await this.postsService.find(postid, req.user.username);
     if (!post) throw new NotFoundException('Post not found');
-    if (post.user.username !== req.user.username)
-      throw new UnauthorizedException();
     await this.postsService.remove(postid);
     return 'Post Deleted!';
   }
