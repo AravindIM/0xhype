@@ -2,7 +2,6 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './post.entity';
-import { User } from '../users/user.entity';
 import { LessThan, Repository } from 'typeorm';
 import scrapePreview from 'open-graph-scraper';
 import { LinkPreviewDto } from './dto/link-preview.dto';
@@ -65,9 +64,9 @@ export class PostsService {
     private cacheManager: Cache,
   ) {}
 
-  async find(postid: number): Promise<Post | null> {
+  async find(postid: number, username: string): Promise<Post | null> {
     return this.postRepository.findOne({
-      where: { postid },
+      where: { postid, user: { username } },
       relations: ['user'],
     });
   }
@@ -116,17 +115,17 @@ export class PostsService {
     return page;
   }
 
-  async findByUserId(
-    userId: number,
+  async findByUsername(
+    username: string,
     params: PaginationParams,
   ): Promise<PaginatedPosts> {
-    return this.keysetPage({ user: { id: userId } }, params);
+    return this.keysetPage({ user: { username } }, params);
   }
 
   async create(createPostDto: CreatePostDto, userId: number): Promise<Post> {
     const post = this.postRepository.create({
       ...createPostDto,
-      user: { id: userId } as User,
+      userId,
     });
     const saved = await this.postRepository.save(post);
     try {

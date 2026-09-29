@@ -3,6 +3,7 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   DeleteDateColumn,
 } from 'typeorm';
@@ -25,9 +26,13 @@ export class Post {
   @DeleteDateColumn()
   deletedAt: Date | null;
 
+  @Column()
+  userId: number;
+
   @ManyToOne(() => User, (user) => user.posts, {
     nullable: false,
     eager: false,
   })
+  @JoinColumn({ name: 'userId' })
   user: User;
 }
