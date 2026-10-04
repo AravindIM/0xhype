@@ -1,404 +1,80 @@
 # 0xhype
 
-Real-time tech news aggregation platform with intelligent link previews and a modern, responsive interface.
+A news aggregator for tech enthusiasts, built from links people submit.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue.svg)](https://www.typescriptlang.org/)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org)
+[![NestJS](https://img.shields.io/badge/NestJS-11-E0234E.svg?logo=nestjs&logoColor=white)](https://nestjs.com)
+[![React Router](https://img.shields.io/badge/React_Router-7-CA4245.svg?logo=reactrouter&logoColor=white)](https://reactrouter.com)
 
-## Table of Contents
-
-- [About](#about)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running with Docker](#running-with-docker)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
-
-## About
-
-0xhype is a real-time tech news aggregation platform designed to bring the latest updates from the tech community to your fingertips. The platform fetches tech news, generates rich link previews with OpenGraph metadata, and presents them in an elegant, user-friendly interface.
-
-Whether you're a developer, tech enthusiast, or startup founder, 0xhype keeps you informed about the latest trends, announcements, and breakthroughs in the technology space. The platform combines a powerful backend API with a modern frontend to deliver a seamless news browsing experience.
+0xhype is a news aggregator for tech enthusiasts. People share the links they find worth reading (articles, release notes, blog posts, repos, videos), and everyone gets one feed with the newest at the top. Accounts tie every post to a person, so you can see who shared something and browse the rest of what they've posted.
 
 ## Features
 
-### Current Features
+- One feed of everything the community has shared, newest first. Older posts load as you scroll.
+- Submit a link with a title. It takes a few seconds.
+- Every account gets a profile: a photo, a banner, a short bio, a website, and the posts that person has shared.
+- Delete anything you posted.
+- Sign up with an email and password, and stay signed in between visits.
 
-- **Real-time News Aggregation**: Fetch and display the latest tech news from multiple sources
-- **Intelligent Link Previews**: Automatically generate rich previews with titles, descriptions, and images using OpenGraph metadata
-- **Responsive Design**: Fully responsive UI that works seamlessly on desktop, tablet, and mobile devices
-- **Trending Panel**: Discover trending topics and most-discussed tech news
-- **Fast and Lightweight**: Optimized performance with instant page loads and smooth interactions
-- **Modern UI Components**: Built with accessible, reusable component library
-- **Error Handling**: Graceful error states with user-friendly messages
-- **Skeleton Loading States**: Beautiful loading states for better perceived performance
+## Tech stack
 
-### Upcoming Features
+| Backend | Frontend | Infrastructure |
+| --- | --- | --- |
+| NestJS 11 (TypeScript) | React Router v7 (SSR) + React 19 | PostgreSQL 18 |
+| TypeORM + PostgreSQL | Vite 7 + Tailwind CSS 4 | Redis 7 |
+| passport-jwt + bcryptjs | Radix UI / shadcn-style | MinIO |
+| Redis cache + MinIO storage | TanStack Query + Virtual, motion | Docker Compose |
 
-- **User Authentication**: Sign up, login, and maintain user profiles
-- **User Interactions**: Upvotes, bookmarks, and shares
-- **Comments & Discussions**: Add comments to posts and discuss with other users
-- **Advanced Search**: Full-text search across news articles
-- **User Profiles**: Personalized profiles with reading history and saved articles
-- **Notifications**: Real-time notifications for breaking tech news
-- **Social Features**: Follow topics, authors, and other users
-- **Dark Mode**: Toggle between light and dark themes
+## Getting started
 
-## Tech Stack
+**Prerequisites:** Docker with Compose v2. Or Node.js 20+ and npm if you'd rather run things locally.
 
-### Backend
+### Docker (recommended)
 
-- **[NestJS](https://nestjs.com/)** - Progressive Node.js framework for building efficient server-side applications
-- **[TypeScript](https://www.typescriptlang.org/)** - Typed superset of JavaScript for robust development
-- **[TypeORM](https://typeorm.io/)** - Modern ORM for database management and migrations
-- **[PostgreSQL](https://www.postgresql.org/)** - Reliable and advanced relational database
-- **[Docker](https://www.docker.com/)** - Containerization for consistent deployments
-
-### Frontend
-
-- **[React](https://react.dev/)** - UI library for building interactive user interfaces
-- **[React Router v7](https://reactrouter.com/)** - Client-side routing for seamless navigation
-- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe React components
-- **[Vite](https://vitejs.dev/)** - Lightning-fast build tool and dev server
-- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[shadcn](https://shadcn.com/)** - High-quality, reusable React components built on Radix UI
-- **[motion.dev](https://motion.dev/)** - Animation library for smooth, performant visual effects
-
-### DevOps & Tools
-
-- **Docker Compose** - Multi-container application orchestration
-- **ESLint** - Code quality and consistency
-- **Jest** - Testing framework for unit and integration tests
-
-## Getting Started
-
-### Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- **Node.js** (v18 or higher) - [Download](https://nodejs.org/)
-- **npm** or **yarn** - Comes with Node.js
-- **Docker** and **Docker Compose** (optional, for containerized setup) - [Download](https://www.docker.com/)
-- **PostgreSQL** (v12 or higher) - [Download](https://www.postgresql.org/)
-
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://gitlab.com/AravindIM/0xhype.git
-   cd 0xhype
-   ```
-
-2. **Install backend dependencies**
-
-   ```bash
-   cd app/api
-   npm install
-   ```
-
-3. **Install frontend dependencies**
-
-   ```bash
-   cd ../web
-   npm install
-   cd ../..
-   ```
-
-4. **Configure environment variables**
-
-   Create a `.env` file in the `app/api` directory:
-
-   ```bash
-   # Database Configuration
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_USERNAME=postgres
-   DB_PASSWORD=postgres
-   DB_NAME=0xhype
-   DB_SYNCHRONIZE=true
-
-   # API Configuration
-   API_PORT=3000
-   API_HOST=0.0.0.0
-
-   # Frontend URL (for CORS)
-   FRONTEND_URL=http://localhost:5173
-   ```
-
-5. **Set up the database**
-
-   Ensure PostgreSQL is running, then run migrations:
-
-   ```bash
-   cd app/api
-   npm run typeorm migration:run
-   ```
-
-6. **Start the development servers**
-
-   **Backend** (Terminal 1):
-
-   ```bash
-   cd app/api
-   npm run start:dev
-   ```
-
-   **Frontend** (Terminal 2):
-
-   ```bash
-   cd app/web
-   npm run dev
-   ```
-
-   The application will be available at:
-   - Frontend: `http://localhost:5173`
-   - Backend API: `http://localhost:3000`
-
-### Running with Docker
-
-The easiest way to run 0xhype is with Docker Compose, which sets up all services automatically.
-
-1. **Ensure Docker is running**
-
-   ```bash
-   docker --version
-   docker-compose --version
-   ```
-
-2. **Build and start all services**
-
-   ```bash
-   docker-compose up --build
-   ```
-
-   This will start:
-   - PostgreSQL database
-   - Backend API (NestJS)
-   - Frontend (React)
-
-3. **Access the application**
-   - Frontend: `http://localhost:5173`
-   - Backend API: `http://localhost:3000`
-
-4. **Stop the services**
-
-   ```bash
-   docker-compose down
-   ```
-
-   To also remove volumes:
-
-   ```bash
-   docker-compose down -v
-   ```
-
-## Usage
-
-### Viewing News
-
-1. Open the application in your browser (`http://localhost:5173`)
-2. The homepage displays the latest aggregated tech news
-3. Click on any news item to view the full link preview with metadata
-4. Browse the trending panel to see what's popular in the tech community
-
-### Creating a Post
+The fastest way in:
 
 ```bash
-curl -X POST http://localhost:3000/api/posts \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "New JavaScript Framework Released",
-    "link": "https://example.com/article"
-  }'
+docker compose up --build
 ```
 
-### Fetching Posts
+Open http://localhost:5173 when it finishes. Run `docker compose watch` in a second terminal to rebuild on changes. `docker compose down` stops the stack, and `down -v` also drops the database and object storage volumes.
+
+| Service | URL |
+| --- | --- |
+| Web | http://localhost:5173 |
+| API | http://localhost:3000 |
+| MinIO console | http://localhost:9001 |
+
+Postgres and Redis stay on the internal Compose network, so they aren't reachable from the host. Compose reads optional overrides such as `JWT_SECRET` and `POSTGRES_PASSWORD` from a `.env` file at the repo root.
+
+### Local development
+
+Start Postgres, Redis, and MinIO yourself, export the variables below, then run each app in its own terminal:
 
 ```bash
-# Get all posts (ordered by date, newest first)
-curl http://localhost:3000/api/posts
-
-# Get a specific post
-curl http://localhost:3000/api/posts/1
+cd app/api && npm install && npm run start:dev
 ```
-
-### Getting Link Preview
 
 ```bash
-# Fetch OpenGraph preview for a post's link
-curl http://localhost:3000/api/posts/1/preview
+cd app/web && npm install && npm run dev
 ```
 
-### Expected Post Response
+The API reads config straight from the environment and never loads a `.env` file. Required: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`. Optional: `PORT` (3000), `ALLOWED_ORIGINS`, `JWT_SECRET`, `REDIS_URL` (`redis://localhost:6379`), and the `MINIO_*` variables (endpoint, port, TLS, access key, secret key, bucket, public URL).
 
-```json
-{
-  "postid": 1,
-  "title": "Article Title",
-  "link": "https://example.com/article",
-  "date": "2026-02-07T10:00:00Z"
-}
-```
+The Vite dev server proxies `/api` to `http://api-dev:3000`, a hostname that only exists inside Compose. Running the web app outside Docker means changing that proxy target.
 
-### Expected Preview Response
+## Project structure
 
-```json
-{
-  "title": "Article Title",
-  "description": "Article description",
-  "image": "https://example.com/image.jpg",
-  "url": "https://example.com",
-  "siteName": "Example",
-  "siteUrl": "example.com",
-  "favicon": "https://example.com/favicon.ico"
-}
-```
-
-## Project Structure
-
-```text
-0xhype/
-├── app/
-│   ├── api/                    # NestJS Backend
-│   │   ├── src/
-│   │   │   ├── posts/         # Posts module
-│   │   │   ├── app.controller.ts
-│   │   │   ├── app.service.ts
-│   │   │   └── main.ts
-│   │   ├── test/              # E2E tests
-│   │   └── package.json
-│   │
-│   └── web/                    # React Frontend
-│       ├── app/
-│       │   ├── components/    # React components
-│       │   ├── routes/        # Page components
-│       │   ├── hooks/         # Custom hooks
-│       │   └── lib/           # Utilities
-│       ├── public/            # Static assets
-│       └── package.json
-│
-├── docker-compose.yml          # Docker orchestration
-├── LICENSE                     # MIT License
-└── README.md                   # This file
-```
-
-## Roadmap
-
-### Phase 1: Core Features (Current)
-
-- [x] Real-time news aggregation
-- [x] Link previews with OpenGraph
-- [x] Responsive UI
-- [ ] Error handling improvements
-- [ ] Dark mode support
-
-### Phase 2: User Features
-
-- [ ] User authentication and registration
-- [ ] User profiles and reading history
-- [ ] User interactions (upvotes, downvotes)
-- [ ] Comments and discussions on posts
-
-### Phase 3: Advanced Features
-
-- [ ] Trending panel
-- [ ] Full-text search functionality
-- [ ] Topic and author following
-- [ ] Personalized news feed
-- [ ] Push notifications
-- [ ] Email digests
-
-### Phase 4: Social & Analytics
-
-- [ ] Social sharing features
-- [ ] Community ranking system
-- [ ] Analytics dashboard
+- `app/api`: the backend, built with NestJS.
+- `app/web`: the frontend, built with React Router.
+- `docker-compose.yml`: the local stack for Postgres, Redis, MinIO, and both apps.
+- `LICENSE`: Apache 2.0.
 
 ## Contributing
 
-We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
-
-### Getting Started with Development
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Make your changes and commit: `git commit -m 'Add your feature'`
-4. Push to the branch: `git push origin feature/your-feature-name`
-5. Open a Pull Request
-
-### Coding Standards
-
-- **Use TypeScript**: All code should be written in TypeScript for type safety
-- **Follow ESLint rules**: Run `npm run lint` and fix any issues
-- **Write tests**: Include unit tests for new features
-- **Document changes**: Update README and comments as needed
-- **Use meaningful commit messages**: Follow conventional commits
-
-### Running Tests
-
-```bash
-# Backend tests
-cd app/api
-npm run test
-
-# E2E tests
-npm run test:e2e
-
-# Frontend tests
-cd ../web
-npm run test
-```
-
-### Linting and Formatting
-
-```bash
-# Check linting issues
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
-```
-
-### Pull Request Process
-
-1. Update the README.md with any new features or changes
-2. Ensure all tests pass: `npm run test`
-3. Ensure linting passes: `npm run lint`
-4. Provide a clear description of your changes in the PR
-5. Link any related issues
+Fork the repo, branch off, and make your change. Before opening a pull request, run the API linter and tests (`cd app/api && npm run lint && npm run test`) and the web type check (`cd app/web && npm run typecheck`). Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-The MIT License is a permissive open-source license that allows you to:
-
-- Use the software commercially
-- Modify the software
-- Distribute the software
-- Use it privately
-
-With the conditions that you:
-
-- Include the original license and copyright notice
-
-## Contact
-
-- **Project Repository**: [0xhype on Gitlab](https://gitlab.com/AravindIM/0xhype)
-- **Report Issues**: [Gitlab Issues](https://gitlab.com/AravindIM/0xhype/-/issues)
-
-For questions, suggestions, or feedback, please open an issue or start a discussion on Gitlab.
-
----
-
-## Made with ❤️ by the 0xhype community
+[Apache-2.0](./LICENSE)
