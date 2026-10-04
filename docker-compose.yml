@@ -1,6 +1,6 @@
 services:
   minio:
-    image: minio/minio:latest
+    image: pgsty/minio:latest
     container_name: 0xhype-minio
     command: server /data --console-address ":9001"
     ports:
@@ -104,7 +104,7 @@ services:
       watch:
         - action: sync
           path: ./app/api/src
-          target: /app/src 
+          target: /app/src
         - action: sync
           path: ./app/api/test
           target: /app/test
